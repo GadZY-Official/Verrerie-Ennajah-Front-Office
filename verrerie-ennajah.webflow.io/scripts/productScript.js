@@ -11,6 +11,10 @@
     const youtubeVideo = document.getElementById('youtubeVideo');
     const youtubeVideoContainer = document.getElementById('youtubeVideoContainer');
     const associatedContent = document.getElementById('associatedContent');
+    const priceElement = document.getElementById('price');
+    const xInput = document.getElementById('x');
+    const yInput = document.getElementById('y');
+    const zInput = document.getElementById('z');
 
     // Get query parameter 'id'
     const urlParams = new URLSearchParams(window.location.search);
@@ -20,6 +24,36 @@
     function formatPrice(price) {
         const priceParts = price.toFixed(3).split('.');
         return `${priceParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}.${priceParts[1]}`;
+    }
+
+    // Function to calculate custom price
+    function calculateCustomPrice(x, y, z, availableZ) {
+        const zData = availableZ.find(item => item.z == z);
+        if (!zData) return 'Invalid z value';
+        const zPrice = zData.price;
+
+        if (z != 3) {
+            if (x >= 5 && x < 300 && y >= 5 && y < 200) {
+                return (x + 3) * (y + 3) * zPrice;
+            } else if (x >= 300 && x <= 325 && y >= 200 && y <= 225) {
+                return 325 * 225 * zPrice;
+            } else if (y >= 300 && y <= 325 && x >= 5 && x < 200) {
+                return 325 * (y + 3) * zPrice;
+            } else if (x >= 200 && x <= 225 && y >= 5 && y < 300) {
+                return (x + 3) * 225 * zPrice;
+            }
+        } else {
+            if (x >= 5 && x < 200 && y >= 5 && y < 150) {
+                return (x + 3) * (y + 3) * zPrice;
+            } else if (x >= 200 && x <= 225 && y >= 150 && y <= 160) {
+                return 225 * 160 * zPrice;
+            } else if (x >= 150 && x <= 160 && y >= 5 && y < 200) {
+                return (x + 3) * 160 * zPrice;
+            } else if (y >= 200 && y <= 225 && x >= 5 && x < 150) {
+                return 225 * (y + 3) * zPrice;
+            }
+        }
+        return 'Invalid dimensions';
     }
 
     if (!productId) {
@@ -32,6 +66,7 @@
         if (desc) desc.textContent = 'No description available';
         if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
         if (associatedContent) associatedContent.innerHTML = '';
+        if (priceElement) priceElement.textContent = 'No price available';
         document.dispatchEvent(new Event('productDataReady'));
         return;
     }
@@ -120,8 +155,8 @@
                         zValues.innerHTML = ''; // Clear existing options
                         product.availableZ.forEach(z => {
                             const option = document.createElement('option');
-                            option.value = z;
-                            option.textContent = `${z.z} mm`; // Fixed from z.z to z
+                            option.value = z.z;
+                            option.textContent = `${z.z} mm`;
                             zValues.appendChild(option);
                         });
                     } else if (zValues) {
@@ -129,15 +164,38 @@
                     }
                 }
 
-                // Toggle customOption div visibility and update zValues
+                // Update price based on dimensionPicker or custom inputs
+                function updatePrice() {
+                    if (dimensionPicker.value === 'custom' && xInput && yInput && zValues && product.allowCustom) {
+                        const x = parseFloat(xInput.value);
+                        const y = parseFloat(yInput.value);
+                        const z = parseFloat(zValues.value);
+                        if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+                            const calculatedPrice = calculateCustomPrice(x, y, z, product.availableZ);
+                            priceElement.textContent = typeof calculatedPrice === 'number' ? formatPrice(calculatedPrice) + ' DT' : calculatedPrice;
+                        } else {
+                            priceElement.textContent = 'Enter valid dimensions';
+                        }
+                    } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
+                        priceElement.textContent = formatPrice(product.defaultDimensions[dimensionPicker.value].price) + ' DT';
+                    } else {
+                        priceElement.textContent = 'Select a dimension';
+                    }
+                }
+
+                // Toggle customOption div visibility and update zValues and price
                 function toggleCustomOption() {
                     customOption.style.display = dimensionPicker.value === 'custom' ? 'flex' : 'none';
                     updateZValues();
+                    updatePrice();
                 }
 
-                // Set initial visibility and zValues, and add event listener
+                // Set initial visibility, zValues, and price, and add event listeners
                 toggleCustomOption();
                 dimensionPicker.addEventListener('change', toggleCustomOption);
+                if (xInput) xInput.addEventListener('input', updatePrice);
+                if (yInput) yInput.addEventListener('input', updatePrice);
+                if (zValues) zValues.addEventListener('change', updatePrice);
 
                 // Populate associated content with related products
                 if (associatedContent && product.category) {
@@ -181,6 +239,7 @@
                 if (desc) desc.textContent = 'No description available';
                 if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
                 if (associatedContent) associatedContent.innerHTML = '';
+                if (priceElement) priceElement.textContent = 'Product not found';
                 document.dispatchEvent(new Event('productDataReady'));
             }
         })
@@ -195,6 +254,7 @@
             if (desc) desc.textContent = 'Error loading description';
             if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
             if (associatedContent) associatedContent.innerHTML = '';
+            if (priceElement) priceElement.textContent = 'Error loading price: ' + error.message;
             document.dispatchEvent(new Event('productDataReady'));
         });
 })();
