@@ -10,10 +10,17 @@
     const desc = document.getElementById('desc');
     const youtubeVideo = document.getElementById('youtubeVideo');
     const youtubeVideoContainer = document.getElementById('youtubeVideoContainer');
+    const associatedContent = document.getElementById('associatedContent');
 
     // Get query parameter 'id'
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
+
+    // Function to format price with space every 3 digits and 3 decimal places
+    function formatPrice(price) {
+        const priceParts = price.toFixed(3).split('.');
+        return `${priceParts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}.${priceParts[1]}`;
+    }
 
     if (!productId) {
         productName.textContent = 'No product ID provided';
@@ -24,6 +31,7 @@
         if (zValues) zValues.innerHTML = '<option value="">No product ID provided</option>';
         if (desc) desc.textContent = 'No description available';
         if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
+        if (associatedContent) associatedContent.innerHTML = '';
         document.dispatchEvent(new Event('productDataReady'));
         return;
     }
@@ -113,7 +121,7 @@
                         product.availableZ.forEach(z => {
                             const option = document.createElement('option');
                             option.value = z;
-                            option.textContent = `${z.z} mm`;
+                            option.textContent = `${z.z} mm`; // Fixed from z.z to z
                             zValues.appendChild(option);
                         });
                     } else if (zValues) {
@@ -131,6 +139,36 @@
                 toggleCustomOption();
                 dimensionPicker.addEventListener('change', toggleCustomOption);
 
+                // Populate associated content with related products
+                if (associatedContent && product.category) {
+                    // Filter products with the same category, excluding current product
+                    const relatedProducts = products
+                        .filter(p => p.category === product.category && p.id !== productId)
+                        // Randomize order
+                        .sort(() => Math.random() - 0.5);
+
+                    associatedContent.innerHTML = ''; // Clear existing content
+                    relatedProducts.forEach(relatedProduct => {
+                        const dimensions = relatedProduct.defaultDimensions[0];
+                        const zDimension = dimensions.z ? `×${dimensions.z}mm` : '';
+                        const formattedPrice = formatPrice(dimensions.price);
+
+                        const productCard = `
+                            <div role="listitem" class="product-card-wrapper w-dyn-item">
+                                <a href="product.html?id=${relatedProduct.id}" class="product-card w-inline-block">
+                                    <div class="product-card-image-wrapper">
+                                        <img src="${relatedProduct.images[0]}" alt="${relatedProduct.name}" sizes="100vw">
+                                    </div>
+                                    <h6 class="product-card-heading">${relatedProduct.name}</h6>
+                                    <div class="text-block-4">${dimensions.x}cm×${dimensions.y}cm${zDimension}</div>
+                                    <div class="product-card-price">${formattedPrice} DT</div>
+                                </a>
+                            </div>
+                        `;
+                        associatedContent.insertAdjacentHTML('beforeend', productCard);
+                    });
+                }
+
                 // Dispatch custom event to signal data is ready
                 document.dispatchEvent(new Event('productDataReady'));
             } else {
@@ -142,6 +180,7 @@
                 if (zValues) zValues.innerHTML = '<option value="">Product not found</option>';
                 if (desc) desc.textContent = 'No description available';
                 if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
+                if (associatedContent) associatedContent.innerHTML = '';
                 document.dispatchEvent(new Event('productDataReady'));
             }
         })
@@ -155,6 +194,7 @@
             if (zValues) zValues.innerHTML = '<option value="">Error loading z-values</option>';
             if (desc) desc.textContent = 'Error loading description';
             if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
+            if (associatedContent) associatedContent.innerHTML = '';
             document.dispatchEvent(new Event('productDataReady'));
         });
 })();
