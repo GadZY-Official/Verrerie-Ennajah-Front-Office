@@ -86,6 +86,15 @@
         return JSON.parse(localStorage.getItem(CART_KEY)) || [];
     }
 
+    // Function to clear cart
+    function clearCart() {
+        localStorage.removeItem(CART_KEY);
+        const cartList = document.getElementById('cartList');
+        if (cartList) {
+            cartList.innerHTML = '<div>Panier vidé.</div>';
+        }
+    }
+
     // Function to format price with space every 3 digits and 3 decimal places
     function formatPrice(price) {
         const priceParts = price.toFixed(3).split('.');
@@ -299,7 +308,7 @@
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            console.warn('Error div (.div-block-2) not found');
+            console.warn('Error div (.div-block-2) not found, suppressing error display');
         }
     }
 
@@ -367,6 +376,47 @@
                 </table>
             `;
 
+            // Plain text fallback
+            let plainTextContent = `
+Nouvelle Commande
+
+Informations Client
+Nom: ${formData.basicInfo.name || 'N/A'}
+E-mail: ${formData.basicInfo.email || 'N/A'}
+Téléphone: ${formData.basicInfo.phone || 'N/A'}
+${formData.basicInfo.nid ? `Numéro de carte d'identité: ${formData.basicInfo.nid}\n` : ''}
+Adresse: ${formData.basicInfo.address_country || 'N/A'}, ${formData.basicInfo.address_state || 'N/A'}, ${formData.basicInfo.address_zip || 'N/A'}
+
+Mode de Livraison
+${formData.getMethod.livraison ? 'Livraison' : 'Retrait en magasin'}
+            `;
+
+            if (formData.getMethod.livraison && formData.livraisonInfo) {
+                plainTextContent += `
+Adresse de Livraison
+Adresse: ${formData.livraisonInfo.address_line1 || 'N/A'}
+Gouvernorat: ${formData.livraisonInfo.address_country || 'N/A'}
+Ville: ${formData.livraisonInfo.address_state || 'N/A'}
+Code postal: ${formData.livraisonInfo.address_zip || 'N/A'}
+                `;
+            }
+
+            plainTextContent += `\nArticles\n`;
+            for (const item of formData.cart) {
+                const productDetails = await fetchProductDetails(item.productId);
+                const name = productDetails ? productDetails.name : 'Unknown Product';
+                const zDimension = item.dimensions.z ? `×${item.dimensions.z}mm` : '';
+                const itemTotal = item.dimensions.price * item.qty;
+                plainTextContent += `- ${name}, ${item.dimensions.x}cm×${item.dimensions.y}cm${zDimension}, Quantité: ${item.qty}, Prix Total: ${formatPrice(itemTotal)} DT\n`;
+            }
+
+            plainTextContent += `
+Totaux
+Total Panier: ${formatPrice(formData.totals.cartTotal)} DT
+Frais de Livraison: ${formatPrice(formData.totals.deliveryFee)} DT
+Total Commande: ${formatPrice(formData.totals.total)} DT
+            `;
+
             const response = await fetch(`https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`, {
                 method: 'POST',
                 headers: {
@@ -375,7 +425,9 @@
                 },
                 body: JSON.stringify({
                     _subject: 'Nouvelle Commande - Verrerie Ennajah',
-                    email_body: emailContent,
+                    message: emailContent,
+                    _template: 'html',
+                    _text: plainTextContent,
                     _captcha: false
                 })
             });
@@ -565,7 +617,7 @@
 
         const submitButton = document.getElementById('passerCommande');
         if (submitButton) {
-            submitButton.addEventListener('click', async (e) => {
+            const handleSubmit = async (e) => {
                 e.preventDefault();
                 const formData = await collectFormData();
                 if (formData) {
@@ -584,6 +636,9 @@
                         // Update summary content
                         updateSummaryContent(formData);
 
+                        // Clear cart
+                        clearCart();
+
                         // Update button text and parent href
                         submitButton.textContent = 'Continuer vos achats';
                         const parentLink = submitButton.closest('a');
@@ -592,11 +647,15 @@
                         } else {
                             console.warn('Parent <a> for passerCommande button not found');
                         }
+
+                        // Remove submit event listener to prevent re-triggering
+                        submitButton.removeEventListener('click', handleSubmit);
                     } else {
                         showError('Erreur lors de l\'envoi de la commande par e-mail.');
                     }
                 }
-            });
+            };
+            submitButton.addEventListener('click', handleSubmit);
         } else {
             console.warn('Button with id="passerCommande" not found');
         }
