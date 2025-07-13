@@ -320,40 +320,40 @@
         }
     }
 
-    // Send email via FormSubmit using AJAX with key-value pairs
+    // Send email via FormSubmit using AJAX with French key-value pairs
     async function sendEmailViaFormSubmit(formData) {
         try {
             const emailData = {
                 _subject: 'Nouvelle Commande - Verrerie Ennajah',
                 _captcha: false,
-                name: formData.basicInfo.name || 'N/A',
-                email: formData.basicInfo.email || 'N/A',
-                phone: formData.basicInfo.phone || 'N/A',
-                nid: formData.basicInfo.nid || 'N/A',
-                address: `${formData.basicInfo.address_country || 'N/A'}, ${formData.basicInfo.address_state || 'N/A'}, ${formData.basicInfo.address_zip || 'N/A'}`,
-                delivery_method: formData.getMethod.livraison ? 'Livraison' : 'Retrait en magasin'
+                'Nom Complet': formData.basicInfo.name || '',
+                'E-mail': formData.basicInfo.email || '',
+                'Numéro de téléphone': formData.basicInfo.phone || '',
+                'Numéro de carte d\'identité': formData.basicInfo.nid || '',
+                'Adresse': `${formData.basicInfo.address_country || ''}, ${formData.basicInfo.address_state || ''}, ${formData.basicInfo.address_city || ''}, ${formData.basicInfo.address_zip || ''}`,
+                'Mode de livraison': formData.getMethod.livraison ? 'Livraison' : 'Retrait en magasin'
             };
 
             if (formData.getMethod.livraison && formData.livraisonInfo) {
-                emailData.delivery_address_line1 = formData.livraisonInfo.address_line1 || 'N/A';
-                emailData.delivery_governorate = formData.livraisonInfo.address_country || 'N/A';
-                emailData.delivery_city = formData.livraisonInfo.address_state || 'N/A';
-                emailData.delivery_zip = formData.livraisonInfo.address_zip || 'N/A';
+                emailData['Adresse de livraison'] = formData.livraisonInfo.address_line1 || '';
+                emailData['Gouvernorat de livraison'] = formData.livraisonInfo.address_country || '';
+                emailData['Ville de livraison'] = formData.livraisonInfo.address_state || '';
+                emailData['Code postal de livraison'] = formData.livraisonInfo.address_zip || '';
             }
 
             let cartItems = '';
             for (const [index, item] of formData.cart.entries()) {
                 const productDetails = await fetchProductDetails(item.productId);
-                const name = productDetails ? productDetails.name : 'Unknown Product';
+                const name = productDetails ? productDetails.name : 'Produit Inconnu';
                 const zDimension = item.dimensions.z ? `×${item.dimensions.z}mm` : '';
                 const itemTotal = item.dimensions.price * item.qty;
                 cartItems += `Article ${index + 1}: ${name}, Dimensions: ${item.dimensions.x}cm×${item.dimensions.y}cm${zDimension}, Quantité: ${item.qty}, Prix Total: ${formatPrice(itemTotal)} DT\n`;
             }
-            emailData.cart_items = cartItems || 'Aucun article';
+            emailData['Articles'] = cartItems || 'Aucun article';
 
-            emailData.cart_total = `${formatPrice(formData.totals.cartTotal)} DT`;
-            emailData.delivery_fee = `${formatPrice(formData.totals.deliveryFee)} DT`;
-            emailData.order_total = `${formatPrice(formData.totals.total)} DT`;
+            emailData['Total Panier'] = `${formatPrice(formData.totals.cartTotal)} DT`;
+            emailData['Frais de Livraison'] = `${formatPrice(formData.totals.deliveryFee)} DT`;
+            emailData['Total Commande'] = `${formatPrice(formData.totals.total)} DT`;
 
             const response = await fetch(`https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`, {
                 method: 'POST',
@@ -405,19 +405,19 @@
                         <div class="w-commerce-commercecheckoutcolumn">
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-2">Nom complet</label>
-                                <div class="text-block-40">${formData.basicInfo.name || 'N/A'}</div>
+                                <div class="text-block-40">${formData.basicInfo.name || ''}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-3">E-mail</label>
-                                <div class="text-block-41">${formData.basicInfo.email || 'N/A'}</div>
+                                <div class="text-block-41">${formData.basicInfo.email || ''}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-4">Numéro de téléphone</label>
-                                <div class="text-block-42">${formData.basicInfo.phone || 'N/A'}</div>
+                                <div class="text-block-42">${formData.basicInfo.phone || ''}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-5">Numéro de carte d'identité</label>
-                                <div class="text-block-43">${formData.basicInfo.nid || 'N/A'}</div>
+                                <div class="text-block-43">${formData.basicInfo.nid || ''}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-6">Pays</label>
@@ -425,26 +425,26 @@
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label">État/Province</label>
-                                <div class="text-block-38">${formData.basicInfo.address_state || 'N/A'}</div>
+                                <div class="text-block-38">${formData.basicInfo.address_state || ''}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-7">Ville</label>
-                                <div class="text-block-44">${formData.basicInfo.address_city || 'N/A'}</div>
+                                <div class="text-block-44">${formData.basicInfo.address_city || ''}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-8">Code postal</label>
-                                <div class="text-block-45">${formData.basicInfo.address_zip || 'N/A'}</div>
+                                <div class="text-block-45">${formData.basicInfo.address_zip || ''}</div>
                             </div>
                         </div>
                         <div class="w-commerce-commercecheckoutcolumn">
                             <div data-wf-bindings="%5B%5D" data-wf-conditions="%7B%22condition%22%3A%7B%22fields%22%3A%7B%22requiresShipping%22%3A%7B%22eq%22%3A%22true%22%2C%22type%22%3A%22Bool%22%7D%7D%7D%2C%22dataPath%22%3A%22database.commerceOrder%22%7D" class="w-commerce-commercecheckoutsummaryitem" style="display: ${livraison ? 'block' : 'none'}">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-9">Adresse de livraison</label>
-                                <div class="text-block-46">${formData.livraisonInfo?.address_line1 || 'N/A'}</div>
+                                <div class="text-block-46">${formData.livraisonInfo?.address_line1 || ''}</div>
                                 <div class="text-block-47">${formData.livraisonInfo?.address_line2 || ''}</div>
-                                <div class="text-block-48">${formData.livraisonInfo?.address_country || 'N/A'}</div>
-                                <div class="text-block-49">${formData.livraisonInfo?.address_state || 'N/A'}</div>
+                                <div class="text-block-48">${formData.livraisonInfo?.address_country || ''}</div>
+                                <div class="text-block-49">${formData.livraisonInfo?.address_state || ''}</div>
                                 <div class="w-commerce-commercecheckoutsummaryflexboxdiv">
-                                    <div class="w-commerce-commercecheckoutsummarytextspacingondiv text-block-50">${formData.livraisonInfo?.address_zip || 'N/A'}</div>
+                                    <div class="w-commerce-commercecheckoutsummarytextspacingondiv text-block-50">${formData.livraisonInfo?.address_zip || ''}</div>
                                 </div>
                                 <div class="text-block-51">${formData.livraisonInfo?.pays_liv || 'Tunisie'}</div>
                             </div>
