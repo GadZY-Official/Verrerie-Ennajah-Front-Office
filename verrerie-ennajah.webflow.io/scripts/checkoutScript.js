@@ -47,7 +47,6 @@
     // Fetch governorates and cities from GitHub
     async function fetchTunisiaData() {
         try {
-            // Fetch states (governorates)
             const statesResponse = await fetch(statesUrl);
             if (!statesResponse.ok) {
                 throw new Error(`HTTP error fetching states! Status: ${statesResponse.status}`);
@@ -58,14 +57,12 @@
                 .map(state => state.name)
                 .sort();
 
-            // Fetch cities
             const citiesResponse = await fetch(citiesUrl);
             if (!citiesResponse.ok) {
                 throw new Error(`HTTP error fetching cities! Status: ${citiesResponse.status}`);
             }
             const cities = await citiesResponse.json();
 
-            // Map cities to governorates
             const tunisiaCitiesByGovernorate = {};
             tunisiaGovernorates.forEach(gov => {
                 tunisiaCitiesByGovernorate[gov] = cities
@@ -123,7 +120,7 @@
     // Check if item dimensions exist in defaultDimensions
     function areDimensionsValid(itemDimensions, defaultDimensions) {
         if (!defaultDimensions || defaultDimensions.length === 0) {
-            return false; // No default dimensions, treat as invalid (custom)
+            return false;
         }
         return defaultDimensions.some(defaultDim =>
             defaultDim.x === itemDimensions.x &&
@@ -179,7 +176,6 @@
             return;
         }
 
-        // Check if any product has category "verre"
         const cart = getCartFromStorage();
         let hasVerre = false;
         for (const item of cart) {
@@ -190,7 +186,6 @@
             }
         }
 
-        // Disable livraison and check retrait if any product is "verre"
         if (hasVerre) {
             livraisonCheckbox.disabled = true;
             livraisonCheckbox.checked = false;
@@ -260,7 +255,6 @@
             const zDimension = item.dimensions.z ? `×${item.dimensions.z}mm` : '';
             const itemTotal = item.dimensions.price * item.qty;
 
-            // Check dimensions validity
             if (productDetails && !areDimensionsValid(item.dimensions, productDetails.defaultDimensions)) {
                 hasInvalidDimensions = true;
             }
@@ -283,7 +277,6 @@
 
         cartList.innerHTML = itemsHTML.join('');
 
-        // Update nid_inp and nid_lab visibility
         const nidInput = document.getElementById('nid_inp');
         const nidLabel = document.getElementById('nid_lab');
         if (nidInput && nidLabel) {
@@ -318,10 +311,9 @@
         }
     }
 
-    // Send email via FormSubmit
+    // Send email via FormSubmit using AJAX
     async function sendEmailViaFormSubmit(formData) {
         try {
-            // Create HTML content for the email
             let emailContent = `
                 <h2>Nouvelle Commande</h2>
                 <h3>Informations Client</h3>
@@ -375,41 +367,108 @@
                 </table>
             `;
 
-            // Create a hidden form for FormSubmit
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `https://formsubmit.co/${FORMSUBMIT_EMAIL}`;
-            form.style.display = 'none';
+            const response = await fetch(`https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    _subject: 'Nouvelle Commande - Verrerie Ennajah',
+                    email_body: emailContent,
+                    _captcha: false
+                })
+            });
 
-            // Add hidden inputs
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = '_subject';
-            input.value = 'Nouvelle Commande - Verrerie Ennajah';
-            form.appendChild(input);
+            if (!response.ok) {
+                throw new Error(`HTTP error sending email! Status: ${response.status}`);
+            }
 
-            const emailBody = document.createElement('input');
-            emailBody.type = 'hidden';
-            emailBody.name = 'email_body';
-            emailBody.value = emailContent;
-            form.appendChild(emailBody);
-
-            // Optional: Add FormSubmit options (e.g., no CAPTCHA)
-            const noCaptcha = document.createElement('input');
-            noCaptcha.type = 'hidden';
-            noCaptcha.name = '_captcha';
-            noCaptcha.value = 'false';
-            form.appendChild(noCaptcha);
-
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
+            const result = await response.json();
+            if (result.success !== 'true') {
+                throw new Error('FormSubmit failed to send email');
+            }
 
             return true;
         } catch (error) {
             console.error('Error sending email via FormSubmit:', error.message);
             return false;
         }
+    }
+
+    // Update div#cont with commande summary
+    function updateSummaryContent(formData) {
+        const contDiv = document.getElementById('cont');
+        if (!contDiv) {
+            console.warn('Element with id="cont" not found');
+            return;
+        }
+
+        const livraison = formData.getMethod.livraison && formData.livraisonInfo;
+        contDiv.innerHTML = `
+            <div class="w-commerce-commercecheckoutcustomerinfosummarywrapper order-block">
+                <div class="div-block300">
+                    <div class="w-layout-hflex flex-block-200">
+                        <img src="../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700125ffe9df6f4c774a8f_tick123.png" loading="lazy" alt="" class="image-333">
+                        <div class="text-block-54">Votre commande a été effectuée avec succès.</div>
+                    </div>
+                </div>
+                <div class="w-commerce-commercecheckoutsummaryblockheader order-block-header">
+                    <h4 class="order-block-heading">Informations client</h4>
+                </div>
+                <fieldset class="w-commerce-commercecheckoutblockcontent order-block-content">
+                    <div class="w-commerce-commercecheckoutrow">
+                        <div class="w-commerce-commercecheckoutcolumn">
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-2">Nom complet</label>
+                                <div class="text-block-40">${formData.basicInfo.name || 'N/A'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-3">E-mail</label>
+                                <div class="text-block-41">${formData.basicInfo.email || 'N/A'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-4">Numéro de téléphone</label>
+                                <div class="text-block-42">${formData.basicInfo.phone || 'N/A'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-5">Numéro de carte d'identité</label>
+                                <div class="text-block-43">${formData.basicInfo.nid || 'N/A'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-6">Pays</label>
+                                <div class="text-block-39">${formData.basicInfo.address_country || 'Tunisie'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label">État/Province</label>
+                                <div class="text-block-38">${formData.basicInfo.address_state || 'N/A'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-7">Ville</label>
+                                <div class="text-block-44">${formData.basicInfo.address_city || 'N/A'}</div>
+                            </div>
+                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-8">Code postal</label>
+                                <div class="text-block-45">${formData.basicInfo.address_zip || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="w-commerce-commercecheckoutcolumn">
+                            <div data-wf-bindings="%5B%5D" data-wf-conditions="%7B%22condition%22%3A%7B%22fields%22%3A%7B%22requiresShipping%22%3A%7B%22eq%22%3A%22true%22%2C%22type%22%3A%22Bool%22%7D%7D%7D%2C%22dataPath%22%3A%22database.commerceOrder%22%7D" class="w-commerce-commercecheckoutsummaryitem" style="display: ${livraison ? 'block' : 'none'}">
+                                <label class="w-commerce-commercecheckoutsummarylabel field-label-9">Adresse de livraison</label>
+                                <div class="text-block-46">${formData.livraisonInfo?.address_line1 || 'N/A'}</div>
+                                <div class="text-block-47">${formData.livraisonInfo?.address_line2 || ''}</div>
+                                <div class="text-block-48">${formData.livraisonInfo?.address_country || 'N/A'}</div>
+                                <div class="text-block-49">${formData.livraisonInfo?.address_state || 'N/A'}</div>
+                                <div class="w-commerce-commercecheckoutsummaryflexboxdiv">
+                                    <div class="w-commerce-commercecheckoutsummarytextspacingondiv text-block-50">${formData.livraisonInfo?.address_zip || 'N/A'}</div>
+                                </div>
+                                <div class="text-block-51">${formData.livraisonInfo?.pays_liv || 'Tunisie'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        `;
     }
 
     // Validate and collect form data
@@ -420,10 +479,8 @@
         const livraisonCheckbox = document.getElementById('livraison');
         const data = {};
 
-        // Hide error initially
         hideError();
 
-        // Validate basicInfo form
         if (!basicInfoForm || !basicInfoForm.checkValidity()) {
             showError('Veuillez remplir tous les champs obligatoires dans les informations client.');
             basicInfoForm?.reportValidity();
@@ -432,7 +489,6 @@
         const formData = new FormData(basicInfoForm);
         data.basicInfo = Object.fromEntries(formData);
 
-        // Validate GetMethod form
         if (!getMethodForm || !getMethodForm.checkValidity()) {
             showError('Veuillez sélectionner un mode de livraison.');
             getMethodForm?.reportValidity();
@@ -443,7 +499,6 @@
         data.getMethod.retrait = document.getElementById('retrait')?.checked || false;
         data.getMethod.livraison = livraisonCheckbox?.checked || false;
 
-        // Validate liv_form if livraison is selected
         if (livraisonCheckbox?.checked) {
             if (!livForm || !livForm.checkValidity()) {
                 showError('Veuillez remplir tous les champs obligatoires dans l\'adresse de livraison.');
@@ -458,14 +513,12 @@
             }
         }
 
-        // Include cart items
         data.cart = getCartFromStorage();
         if (data.cart.length === 0) {
             showError('Votre panier est vide.');
             return null;
         }
 
-        // Include totals
         const cartTotal = data.cart.reduce((sum, item) => sum + item.dimensions.price * item.qty, 0);
         data.totals = {
             cartTotal: cartTotal,
@@ -478,10 +531,8 @@
 
     // Initialize on page load
     async function initialize() {
-        // Fetch Tunisia governorates and cities
         const { tunisiaGovernorates, tunisiaCitiesByGovernorate } = await fetchTunisiaData();
 
-        // Set country fields
         const pays = document.getElementById('pays');
         const paysLiv = document.getElementById('pays_liv');
         if (pays) pays.value = 'Tunisie';
@@ -489,19 +540,14 @@
         if (paysLiv) paysLiv.value = 'Tunisie';
         else console.warn('Element with id="pays_liv" not found');
 
-        // Populate governorates and cities
         await populateGovernorates(tunisiaGovernorates);
         await populateCities('etat', 'address_state', tunisiaCitiesByGovernorate);
         await populateCities('etat_liv', 'address_state_liv', tunisiaCitiesByGovernorate);
 
-        // Generate cart items and check dimensions
         await generateCartItemsHTML();
-
-        // Update delivery form and totals
         await updateDeliveryForm();
         await updateTotalPrices();
 
-        // Add event listeners for checkboxes
         const livraisonCheckbox = document.getElementById('livraison');
         const retraitCheckbox = document.getElementById('retrait');
         if (livraisonCheckbox) {
@@ -517,7 +563,6 @@
             });
         }
 
-        // Add event listener for submit button
         const submitButton = document.getElementById('passerCommande');
         if (submitButton) {
             submitButton.addEventListener('click', async (e) => {
@@ -528,7 +573,25 @@
                     if (emailSent) {
                         console.log('Form Data:', JSON.stringify(formData, null, 2));
                         hideError();
-                        alert('Commande envoyée avec succès ! Un e-mail a été envoyé à l\'administrateur.');
+
+                        // Hide forms
+                        const forms = [document.getElementById('basicInfo'), document.getElementById('GetMethod'), document.getElementById('liv_form')];
+                        forms.forEach(form => {
+                            if (form) form.style.display = 'none';
+                            else console.warn(`Form ${form?.id} not found`);
+                        });
+
+                        // Update summary content
+                        updateSummaryContent(formData);
+
+                        // Update button text and parent href
+                        submitButton.textContent = 'Continuer vos achats';
+                        const parentLink = submitButton.closest('a');
+                        if (parentLink) {
+                            parentLink.href = 'catalogue.html';
+                        } else {
+                            console.warn('Parent <a> for passerCommande button not found');
+                        }
                     } else {
                         showError('Erreur lors de l\'envoi de la commande par e-mail.');
                     }
