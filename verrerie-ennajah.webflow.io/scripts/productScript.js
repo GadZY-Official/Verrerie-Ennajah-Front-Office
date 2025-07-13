@@ -15,6 +15,8 @@
     const xInput = document.getElementById('x');
     const yInput = document.getElementById('y');
     const zInput = document.getElementById('z');
+    const qtyInput = document.getElementById('qty');
+    const addToCartBtn = document.getElementById('addToCartBtn');
 
     // Get query parameter 'id'
     const urlParams = new URLSearchParams(window.location.search);
@@ -181,6 +183,62 @@
                     } else {
                         priceElement.textContent = 'Select a dimension';
                     }
+                }
+
+                // Add to cart handler
+                if (addToCartBtn) {
+                    addToCartBtn.addEventListener('click', () => {
+                        if (!window.addToCart) {
+                            console.error('addToCart method not available');
+                            return;
+                        }
+                        const qty = parseInt(qtyInput ? qtyInput.value : '1', 10);
+                        if (!Number.isInteger(qty) || qty <= 0) {
+                            console.error('Invalid quantity');
+                            priceElement.textContent = 'Enter a valid quantity';
+                            return;
+                        }
+
+                        let dimensions;
+                        if (dimensionPicker.value === 'custom' && xInput && yInput && zValues && product.allowCustom) {
+                            const x = parseFloat(xInput.value);
+                            const y = parseFloat(yInput.value);
+                            const z = parseFloat(zValues.value);
+                            if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+                                const calculatedPrice = calculateCustomPrice(x, y, z, product.availableZ);
+                                if (typeof calculatedPrice !== 'number') {
+                                    console.error('Invalid dimensions for custom price');
+                                    priceElement.textContent = calculatedPrice;
+                                    return;
+                                }
+                                dimensions = { x, y, z, price: calculatedPrice };
+                            } else {
+                                console.error('Invalid custom dimensions');
+                                priceElement.textContent = 'Enter valid dimensions';
+                                return;
+                            }
+                        } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
+                            const selectedDim = product.defaultDimensions[dimensionPicker.value];
+                            dimensions = {
+                                x: selectedDim.x,
+                                y: selectedDim.y,
+                                z: selectedDim.z || null,
+                                price: selectedDim.price
+                            };
+                        } else {
+                            console.error('No valid dimension selected');
+                            priceElement.textContent = 'Select a dimension';
+                            return;
+                        }
+
+                        const success = window.addToCart(product.id, dimensions, qty);
+                        if (success) {
+                            priceElement.textContent = 'Added to cart';
+                            setTimeout(updatePrice, 2000); // Revert price display after 2 seconds
+                        } else {
+                            priceElement.textContent = 'Error adding to cart';
+                        }
+                    });
                 }
 
                 // Toggle customOption div visibility and update zValues and price
