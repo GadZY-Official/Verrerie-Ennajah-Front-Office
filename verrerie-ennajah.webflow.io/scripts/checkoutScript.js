@@ -86,13 +86,9 @@
         return JSON.parse(localStorage.getItem(CART_KEY)) || [];
     }
 
-    // Function to clear cart
+    // Function to clear cart without resetting cartList display
     function clearCart() {
         localStorage.removeItem(CART_KEY);
-        const cartList = document.getElementById('cartList');
-        if (cartList) {
-            cartList.innerHTML = '<div>Panier vidé.</div>';
-        }
     }
 
     // Function to format price with space every 3 digits and 3 decimal places
@@ -252,14 +248,14 @@
         }
 
         if (cart.length === 0) {
-            cartList.innerHTML = '<div>No items found in cart.</div>';
+            cartList.innerHTML = '<div>Aucun article dans le panier.</div>';
             return;
         }
 
         let hasInvalidDimensions = false;
         const itemsHTML = await Promise.all(cart.map(async item => {
             const productDetails = await fetchProductDetails(item.productId);
-            const name = productDetails ? productDetails.name : 'Unknown Product';
+            const name = productDetails ? productDetails.name : 'Produit Inconnu';
             const image = productDetails ? productDetails.image : '';
             const zDimension = item.dimensions.z ? `×${item.dimensions.z}mm` : '';
             const itemTotal = item.dimensions.price * item.qty;
