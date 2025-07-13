@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
     const productName = document.getElementById('productName');
     const productNameDir = document.getElementById('productNameDir');
@@ -30,29 +30,41 @@
 
     // Function to calculate custom price
     function calculateCustomPrice(x, y, z, availableZ) {
+        // Convert to meters
+        const xmm = x / 100;
+        const ymm = y / 100;
+
         const zData = availableZ.find(item => item.z == z);
         if (!zData) return 'Invalid z value';
         const zPrice = zData.price;
 
         if (z != 3) {
-            if (x >= 5 && x < 300 && y >= 5 && y < 200) {
-                return (x + 3) * (y + 3) * zPrice;
-            } else if (x >= 300 && x <= 325 && y >= 200 && y <= 225) {
-                return 325 * 225 * zPrice;
-            } else if (y >= 300 && y <= 325 && x >= 5 && x < 200) {
-                return 325 * (y + 3) * zPrice;
+            if ((x >= 300 && x <= 325 && y >= 200 && y <= 225) || (y >= 300 && y <= 325 && x >= 200 && x <= 225)) {
+                return 3.25 * 2.25 * zPrice;
             } else if (x >= 200 && x <= 225 && y >= 5 && y < 300) {
-                return (x + 3) * 225 * zPrice;
+                return (ymm + 0.03) * 2.25 * zPrice;
+            } else if (y >= 200 && y <= 225 && x >= 5 && x < 300) {
+                return 2.25 * (xmm + 0.03) * zPrice;
+            } else if (y >= 300 && y <= 325 && x >= 5 && x < 200) {
+                return 3.25 * (xmm + 0.03) * zPrice;
+            } else if (x >= 300 && x <= 325 && y >= 5 && y < 200) {
+                return 3.25 * (ymm + 0.03) * zPrice;
+            } else if ((x >= 5 && x < 300 && y >= 5 && y < 200) || (y >= 5 && y < 300 && x >= 5 && x < 200)) {
+                return (xmm + 0.03) * (ymm + 0.03) * zPrice;
             }
         } else {
-            if (x >= 5 && x < 200 && y >= 5 && y < 150) {
-                return (x + 3) * (y + 3) * zPrice;
-            } else if (x >= 200 && x <= 225 && y >= 150 && y <= 160) {
-                return 225 * 160 * zPrice;
-            } else if (x >= 150 && x <= 160 && y >= 5 && y < 200) {
-                return (x + 3) * 160 * zPrice;
-            } else if (y >= 200 && y <= 225 && x >= 5 && x < 150) {
-                return 225 * (y + 3) * zPrice;
+            if ((x >= 225 && x <= 240 && y >= 165 && y <= 180) || (y >= 225 && y <= 240 && x >= 165 && x <= 180)) {
+                return 2.4 * 1.8 * zPrice;
+            } else if (x >= 165 && x <= 180 && y >= 5 && y < 225) {
+                return (ymm + 0.03) * 1.8 * zPrice;
+            } else if (y >= 165 && y <= 180 && x >= 5 && x < 225) {
+                return (xmm + 0.03) * 1.8 * zPrice;
+            } else if (y >= 225 && y <= 240 && x >= 5 && x < 165) {
+                return 2.4 * (xmm + 0.03) * zPrice;
+            } else if (x >= 225 && x <= 240 && y >= 5 && y < 165) {
+                return 2.4 * (ymm + 0.03) * zPrice;
+            } else if ((x >= 5 && x < 225 && y >= 5 && y < 165) || (y >= 5 && y < 225 && x >= 5 && x < 165)) {
+                return (xmm + 0.03) * (ymm + 0.03) * zPrice;
             }
         }
         return 'Invalid dimensions';
