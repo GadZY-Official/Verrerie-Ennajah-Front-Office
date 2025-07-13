@@ -320,102 +320,40 @@
         }
     }
 
-    // Send email via FormSubmit using AJAX
+    // Send email via FormSubmit using AJAX with key-value pairs
     async function sendEmailViaFormSubmit(formData) {
         try {
-            let emailContent = `
-                <h2>Nouvelle Commande</h2>
-                <h3>Informations Client</h3>
-                <table border="1" style="border-collapse: collapse; width: 100%;">
-                    <tr><th>Nom</th><td>${formData.basicInfo.name || 'N/A'}</td></tr>
-                    <tr><th>E-mail</th><td>${formData.basicInfo.email || 'N/A'}</td></tr>
-                    <tr><th>Téléphone</th><td>${formData.basicInfo.phone || 'N/A'}</td></tr>
-                    ${formData.basicInfo.nid ? `<tr><th>Numéro de carte d'identité</th><td>${formData.basicInfo.nid}</td></tr>` : ''}
-                    <tr><th>Adresse</th><td>${formData.basicInfo.address_country || 'N/A'}, ${formData.basicInfo.address_state || 'N/A'}, ${formData.basicInfo.address_zip || 'N/A'}</td></tr>
-                </table>
-                <h3>Mode de Livraison</h3>
-                <p>${formData.getMethod.livraison ? 'Livraison' : 'Retrait en magasin'}</p>
-            `;
+            const emailData = {
+                _subject: 'Nouvelle Commande - Verrerie Ennajah',
+                _captcha: false,
+                name: formData.basicInfo.name || 'N/A',
+                email: formData.basicInfo.email || 'N/A',
+                phone: formData.basicInfo.phone || 'N/A',
+                nid: formData.basicInfo.nid || 'N/A',
+                address: `${formData.basicInfo.address_country || 'N/A'}, ${formData.basicInfo.address_state || 'N/A'}, ${formData.basicInfo.address_zip || 'N/A'}`,
+                delivery_method: formData.getMethod.livraison ? 'Livraison' : 'Retrait en magasin'
+            };
 
             if (formData.getMethod.livraison && formData.livraisonInfo) {
-                emailContent += `
-                    <h3>Adresse de Livraison</h3>
-                    <table border="1" style="border-collapse: collapse; width: 100%;">
-                        <tr><th>Adresse</th><td>${formData.livraisonInfo.address_line1 || 'N/A'}</td></tr>
-                        <tr><th>Gouvernorat</th><td>${formData.livraisonInfo.address_country || 'N/A'}</td></tr>
-                        <tr><th>Ville</th><td>${formData.livraisonInfo.address_state || 'N/A'}</td></tr>
-                        <tr><th>Code postal</th><td>${formData.livraisonInfo.address_zip || 'N/A'}</td></tr>
-                    </table>
-                `;
+                emailData.delivery_address_line1 = formData.livraisonInfo.address_line1 || 'N/A';
+                emailData.delivery_governorate = formData.livraisonInfo.address_country || 'N/A';
+                emailData.delivery_city = formData.livraisonInfo.address_state || 'N/A';
+                emailData.delivery_zip = formData.livraisonInfo.address_zip || 'N/A';
             }
 
-            emailContent += `<h3>Articles</h3><table border="1" style="border-collapse: collapse; width: 100%;">
-                <tr><th>Produit</th><th>Dimensions</th><th>Quantité</th><th>Prix Total</th></tr>`;
-
-            for (const item of formData.cart) {
+            let cartItems = '';
+            for (const [index, item] of formData.cart.entries()) {
                 const productDetails = await fetchProductDetails(item.productId);
                 const name = productDetails ? productDetails.name : 'Unknown Product';
                 const zDimension = item.dimensions.z ? `×${item.dimensions.z}mm` : '';
                 const itemTotal = item.dimensions.price * item.qty;
-                emailContent += `
-                    <tr>
-                        <td>${name}</td>
-                        <td>${item.dimensions.x}cm×${item.dimensions.y}cm${zDimension}</td>
-                        <td>${item.qty}</td>
-                        <td>${formatPrice(itemTotal)} DT</td>
-                    </tr>
-                `;
+                cartItems += `Article ${index + 1}: ${name}, Dimensions: ${item.dimensions.x}cm×${item.dimensions.y}cm${zDimension}, Quantité: ${item.qty}, Prix Total: ${formatPrice(itemTotal)} DT\n`;
             }
+            emailData.cart_items = cartItems || 'Aucun article';
 
-            emailContent += `</table>
-                <h3>Totaux</h3>
-                <table border="1" style="border-collapse: collapse; width: 100%;">
-                    <tr><th>Total Panier</th><td>${formatPrice(formData.totals.cartTotal)} DT</td></tr>
-                    <tr><th>Frais de Livraison</th><td>${formatPrice(formData.totals.deliveryFee)} DT</td></tr>
-                    <tr><th>Total Commande</th><td>${formatPrice(formData.totals.total)} DT</td></tr>
-                </table>
-            `;
-
-            // Plain text fallback
-            let plainTextContent = `
-Nouvelle Commande
-
-Informations Client
-Nom: ${formData.basicInfo.name || 'N/A'}
-E-mail: ${formData.basicInfo.email || 'N/A'}
-Téléphone: ${formData.basicInfo.phone || 'N/A'}
-${formData.basicInfo.nid ? `Numéro de carte d'identité: ${formData.basicInfo.nid}\n` : ''}
-Adresse: ${formData.basicInfo.address_country || 'N/A'}, ${formData.basicInfo.address_state || 'N/A'}, ${formData.basicInfo.address_zip || 'N/A'}
-
-Mode de Livraison
-${formData.getMethod.livraison ? 'Livraison' : 'Retrait en magasin'}
-            `;
-
-            if (formData.getMethod.livraison && formData.livraisonInfo) {
-                plainTextContent += `
-Adresse de Livraison
-Adresse: ${formData.livraisonInfo.address_line1 || 'N/A'}
-Gouvernorat: ${formData.livraisonInfo.address_country || 'N/A'}
-Ville: ${formData.livraisonInfo.address_state || 'N/A'}
-Code postal: ${formData.livraisonInfo.address_zip || 'N/A'}
-                `;
-            }
-
-            plainTextContent += `\nArticles\n`;
-            for (const item of formData.cart) {
-                const productDetails = await fetchProductDetails(item.productId);
-                const name = productDetails ? productDetails.name : 'Unknown Product';
-                const zDimension = item.dimensions.z ? `×${item.dimensions.z}mm` : '';
-                const itemTotal = item.dimensions.price * item.qty;
-                plainTextContent += `- ${name}, ${item.dimensions.x}cm×${item.dimensions.y}cm${zDimension}, Quantité: ${item.qty}, Prix Total: ${formatPrice(itemTotal)} DT\n`;
-            }
-
-            plainTextContent += `
-Totaux
-Total Panier: ${formatPrice(formData.totals.cartTotal)} DT
-Frais de Livraison: ${formatPrice(formData.totals.deliveryFee)} DT
-Total Commande: ${formatPrice(formData.totals.total)} DT
-            `;
+            emailData.cart_total = `${formatPrice(formData.totals.cartTotal)} DT`;
+            emailData.delivery_fee = `${formatPrice(formData.totals.deliveryFee)} DT`;
+            emailData.order_total = `${formatPrice(formData.totals.total)} DT`;
 
             const response = await fetch(`https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`, {
                 method: 'POST',
@@ -423,13 +361,7 @@ Total Commande: ${formatPrice(formData.totals.total)} DT
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    _subject: 'Nouvelle Commande - Verrerie Ennajah',
-                    message: emailContent,
-                    _template: 'html',
-                    _text: plainTextContent,
-                    _captcha: false
-                })
+                body: JSON.stringify(emailData)
             });
 
             if (!response.ok) {
