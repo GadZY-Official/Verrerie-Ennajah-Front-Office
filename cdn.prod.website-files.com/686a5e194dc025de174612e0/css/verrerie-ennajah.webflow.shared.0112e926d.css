@@ -2049,7 +2049,7 @@ textarea.w-input, textarea.w-select {
 :root {
   --dark: #111;
   --haze: #f8f8f8;
-  --color-1: #a5c926;
+  --color-1: #009bfa;
   --color-2: #009bfa;
   --grey-4: #e5e5e5;
   --grey-1: #999;
@@ -3354,7 +3354,7 @@ p {
 
 .button:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 8px -4px #a5c92680;
+  box-shadow: 0 8px 8px -4px #009bfa80;
 }
 
 .button.small {

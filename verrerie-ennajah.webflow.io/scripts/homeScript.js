@@ -1,8 +1,10 @@
-(function() {
+(function () {
     const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
     const verreContainer = document.getElementById('verreContainer');
     const miroirsContainer = document.getElementById('miroirsContainer');
     const cadresContainer = document.getElementById('cadresContainer');
+    const loader = document.getElementById('loader');
+    const mainContent = document.getElementById('mainContent');
 
     // Function to format price with space every 3 digits and 3 decimal places
     function formatPrice(price) {
@@ -56,6 +58,8 @@
             renderProducts(verreContainer, verreProducts);
             renderProducts(miroirsContainer, miroirsProducts);
             renderProducts(cadresContainer, cadresProducts);
+            loader.style.display = 'none';
+            mainContent.style.display = 'block';
         })
         .catch(error => {
             console.error('Error fetching products:', error.message);

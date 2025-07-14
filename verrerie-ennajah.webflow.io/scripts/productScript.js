@@ -3,7 +3,6 @@
     const productName = document.getElementById('productName');
     const productNameDir = document.getElementById('productNameDir');
     const productImage = document.getElementById('productImage');
-    const productImagesScript = document.getElementById('productImages');
     const dimensionPicker = document.getElementById('dimensionPicker');
     const customOption = document.getElementById('customOptions');
     const zValues = document.getElementById('zValues');
@@ -85,6 +84,29 @@
         return;
     }
 
+    const fetcherScript = document.getElementById('fetcher-script');
+    const scriptElements = Array.from(document.querySelectorAll('script'));
+    const deferredScripts = [];
+
+    // STEP 1: Collect and remove all scripts except this one
+    scriptElements.forEach(script => {
+        if (script === fetcherScript) return;
+
+        const attrs = {};
+        for (const attr of script.attributes) {
+            attrs[attr.name] = attr.value;
+        }
+
+        deferredScripts.push({
+            parent: script.parentNode,
+            nextSibling: script.nextSibling,
+            attributes: attrs,
+            content: script.src ? null : script.textContent.trim()
+        });
+
+        script.remove();
+    });
+
     fetch(`${api}/products.json`)
         .then(response => {
             if (!response.ok) {
@@ -98,6 +120,62 @@
             }
             const product = products.find(p => p.id === productId);
             if (product) {
+                const loader = document.getElementById('loader');
+                const mainContent = document.getElementById('mainContent');
+                loader.style.display = 'none';
+                mainContent.style.display = 'block';
+                // STEP 3: Sort - JSON scripts first, then others (both in reverse order)
+                const jsonScripts = [];
+                const otherScripts = [];
+
+                for (let i = deferredScripts.length - 1; i >= 0; i--) {
+                    const s = deferredScripts[i];
+                    const type = s.attributes['type'] || 'text/javascript';
+                    if (type === 'application/json') jsonScripts.push(s);
+                    else otherScripts.push(s);
+                }
+
+                // STEP 4: Reinsert all scripts with original attributes
+                const insertScripts = scriptList => {
+                    scriptList.forEach(({ parent, nextSibling, attributes, content }) => {
+                        const newScript = document.createElement('script');
+                        for (const [key, value] of Object.entries(attributes)) {
+                            newScript.setAttribute(key, value);
+                        }
+                        if (content) newScript.textContent = content;
+                        if (nextSibling) parent.insertBefore(newScript, nextSibling);
+                        else parent.appendChild(newScript);
+                    });
+                };
+
+                insertScripts(jsonScripts);    // JSON scripts first
+
+                const productImagesScript = document.getElementById('productImages');
+
+                // Create JSON for product images
+                const imageItems = product.images.map(imageUrl => {
+                    const fileName = imageUrl.split('/').pop();
+                    const id = fileName.split('.').slice(0, -1).join('.');
+                    return {
+                        _id: id,
+                        origFileName: fileName,
+                        fileName: fileName,
+                        fileSize: 0, // Placeholder as fileSize is not available
+                        height: 1200,
+                        url: imageUrl,
+                        width: 1200,
+                        type: "image"
+                    };
+                });
+
+                // Set JSON content in script tag with group
+                productImagesScript.textContent = JSON.stringify({
+                    items: imageItems,
+                    group: product.category || "Unknown"
+                }, null, 2);
+
+                insertScripts(otherScripts);   // Then other scripts
+
                 // Set product name
                 productName.textContent = product.name;
                 if (productNameDir) productNameDir.textContent = product.name;
@@ -122,28 +200,6 @@
                 } else if (youtubeVideoContainer) {
                     youtubeVideoContainer.style.display = 'none';
                 }
-
-                // Create JSON for product images
-                const imageItems = product.images.map(imageUrl => {
-                    const fileName = imageUrl.split('/').pop();
-                    const id = fileName.split('.').slice(0, -1).join('.');
-                    return {
-                        _id: id,
-                        origFileName: fileName,
-                        fileName: fileName,
-                        fileSize: 0, // Placeholder as fileSize is not available
-                        height: 1200,
-                        url: imageUrl,
-                        width: 1200,
-                        type: "image"
-                    };
-                });
-
-                // Set JSON content in script tag with group
-                productImagesScript.textContent = JSON.stringify({
-                    items: imageItems,
-                    group: product.category || "Unknown"
-                }, null, 2);
 
                 // Populate dimension picker
                 dimensionPicker.innerHTML = ''; // Clear existing options
@@ -300,17 +356,7 @@
                 // Dispatch custom event to signal data is ready
                 document.dispatchEvent(new Event('productDataReady'));
             } else {
-                productName.textContent = 'Product not found';
-                if (productNameDir) productNameDir.textContent = 'Product not found';
-                productImagesScript.textContent = '{}';
-                dimensionPicker.innerHTML = '<option value="">Product not found</option>';
-                customOption.style.display = 'none';
-                if (zValues) zValues.innerHTML = '<option value="">Product not found</option>';
-                if (desc) desc.textContent = 'No description available';
-                if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
-                if (associatedContent) associatedContent.innerHTML = '';
-                if (priceElement) priceElement.textContent = 'Product not found';
-                document.dispatchEvent(new Event('productDataReady'));
+                window.location.href = '404.html';
             }
         })
         .catch(error => {

@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
     const CART_KEY = 'cart';
     const DELIVERY_FEE = 8.000; // Delivery fee in DT
@@ -14,35 +14,39 @@
 
     // Fallback Tunisian cities by governorate
     const fallbackTunisiaCitiesByGovernorate = {
-        'Tunis': ['Tunis', 'La Marsa', 'Carthage', 'Sidi Bou Said', 'Le Kram'],
-        'Ariana': ['Ariana', 'Raoued', 'Sidi Thabet', 'La Soukra'],
-        'Ben Arous': ['Ben Arous', 'Hammam Lif', 'Mourouj', 'Ezzahra'],
-        'Manouba': ['Manouba', 'Den Den', 'Douar Hicher', 'Oued Ellil'],
-        'Nabeul': ['Nabeul', 'Hammamet', 'Dar Chaabane', 'Kelibia'],
-        'Zaghouan': ['Zaghouan', 'El Fahs', 'Bir Mcherga'],
-        'Bizerte': ['Bizerte', 'Menzel Bourguiba', 'Ras Jebel', 'Ghar El Melh'],
-        'Béja': ['Béja', 'Testour', 'Nefza', 'Teboursouk'],
-        'Jendouba': ['Jendouba', 'Ain Draham', 'Fernana', 'Tabarka'],
-        'Kef': ['Kef', 'Dahmani', 'Sakiet Sidi Youssef', 'Nebeur'],
-        'Siliana': ['Siliana', 'Makthar', 'Gaafour', 'Bou Arada'],
-        'Sousse': ['Sousse', 'Hammam Sousse', 'Akouda', 'Msaken'],
-        'Monastir': ['Monastir', 'Skanes', 'Ksar Hellal', 'Jemmal'],
-        'Mahdia': ['Mahdia', 'Chebba', 'El Jem', 'Rejiche'],
-        'Sfax': ['Sfax', 'Sakiet Ezzit', 'Thyna', 'Gremda'],
-        'Kairouan': ['Kairouan', 'Haffouz', 'Sbikha', 'Oueslatia'],
-        'Kasserine': ['Kasserine', 'Sbeitla', 'Feriana', 'Thala'],
-        'Sidi Bouzid': ['Sidi Bouzid', 'Menzel Bouzaiane', 'Regueb', 'Mezzouna'],
-        'Gabès': ['Gabès', 'Matmata', 'El Hamma', 'Mareth'],
-        'Medenine': ['Medenine', 'Zarzis', 'Ben Gardane', 'Djerba'],
-        'Tataouine': ['Tataouine', 'Remada', 'Bir Lahmar', 'Ghomrassen'],
-        'Gafsa': ['Gafsa', 'Metlaoui', 'Redeyef', 'El Ksar'],
+        'Tunis': ['Tunis', 'La Marsa', 'Carthage', 'Sidi Bou Said', 'Le Kram', 'Bab Souika', 'Ezzouhour', 'El Menzah', 'El Omrane', 'Djebel Djelloud', 'Sidi Hassine'],
+        'Ariana': ['Ariana', 'Ettadhamen', 'Raoued', 'La Soukra', 'Sukrah', 'Mnihla'],
+        'Ben Arous': ['Ben Arous', 'Ezzahra', 'Mourouj', 'Hammam Lif', 'Fouchana', 'Hammam Chott', 'Mohamedia', 'Mornag', 'Mégrine'],
+        'Manouba': ['Manouba', 'Douar Hicher', 'Den Den', 'Djedeida', 'Mornaguia'],
+        'Nabeul': ['Nabeul', 'Hammamet', 'Korba', 'Kelibia', 'Dar Chaabane', 'El Maâmoura', 'El Mida', 'Enfidha', 'Hammam Ghezèze', 'Menzel Bouzelfa', 'Grombalia'],
+        'Bizerte': ['Bizerte', 'Menzel Bourguiba', 'Ras Jebel', 'Mateur', 'Menzel Abderrahmane', 'Metline'],
+        'Béja': ['Béja', 'Testour', 'Téboursouk', 'Majaz al-Bab'],
+        'Jendouba': ['Jendouba', 'Aïn Draham', 'Fernana', 'Tabarka', 'Beni M\'Tir', 'Bou Salem', 'Ghardimaou', 'Fériana'],
+        'Kef': ['Kef', 'Dahmani', 'Nebeur', 'Tajerouine'],
+        'Siliana': ['Siliana', 'Makthar', 'Gaafour', 'Kesra', 'Bargou', 'Bou Arada'],
+        'Sousse': ['Sousse', 'Hammam Sousse', 'Akouda', 'Enfidha', 'Hergla', 'Bouficha', 'M\'saken', 'Kondar', 'Zaouiet Ksibet Thrayet'],
+        'Monastir': ['Monastir', 'Skanes', 'Jemmal', 'Ksar Hellal', 'Ksibet el-Médiouni', 'Moknine', 'Amiret El Fhoul', 'Amiret Hajjaj', 'Amiret Touazra'],
+        'Mahdia': ['Mahdia', 'Chebba', 'El Jem', 'Essouassi', 'Melloulèche'],
+        'Sfax': ['Sfax', 'Sakiet Ezzit', 'Jebiniana', 'Menzel Chaker', 'Chihia', 'Bir Ali Ben Khalifa', 'Agareb'],
+        'Kairouan': ['Kairouan', 'Sbikha', 'Haffouz', 'Chebika', 'Bou Hajla', 'Hajeb El Ayoun'],
+        'Kasserine': ['Kasserine', 'Sbeitla', 'Fériana', 'Foussana'],
+        'Sidi Bouzid': ['Sidi Bouzid', 'Menzel Bouzaiene', 'Regueb', 'Meknassi'],
+        'Gabès': ['Gabès', 'Matmata', 'El Hamma', 'Ghannouch', 'Chenini Nahal', 'Mérouna'],
+        'Medenine': ['Medenine', 'Djerba Houmt Souk', 'Djerba Midoun', 'Djerba Ajim', 'Ben Gardane', 'Zarzis'],
+        'Tataouine': ['Tataouine', 'Bir Lahmar', 'Remada', 'Ghomrassen', 'Dhiba'],
+        'Gafsa': ['Gafsa', 'Metlaoui', 'Redeyef', 'Moularès'],
         'Tozeur': ['Tozeur', 'Degache', 'Nefta', 'Tamerza'],
-        'Kebili': ['Kebili', 'Douz', 'Souk Lahad', 'El Golâa']
+        'Kebili': ['Kebili', 'Douz', 'Souk Lahad', 'El Golâa'],
+        'Zaghouan': ['Zaghouan', 'El Fahs', 'Bir Mcherga', 'Nadhour'],
+        'Bizerte': ['Bizerte', 'Menzel Bourguiba', 'Ras Jebel', 'Mateur', 'Menzel Abderrahmane', 'Metline']
     };
+
 
     // URLs for fetching governorates and cities
     const statesUrl = 'https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/states.json';
     const citiesUrl = 'https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/cities.json';
+    const loader = document.getElementById('loader');
+    const mainContent = document.getElementById('mainContent');
 
     // Fetch governorates and cities from GitHub
     async function fetchTunisiaData() {
@@ -109,6 +113,8 @@
                 throw new Error('Invalid data format: Expected an array of products');
             }
             const product = products.find(p => p.id === productId);
+            loader.style.display = 'none';
+            mainContent.style.display = 'block';
             return product ? {
                 name: product.name,
                 image: product.images[0] || '',
@@ -300,7 +306,7 @@
             errorDiv.style.display = 'flex';
             const errorText = errorDiv.querySelector('.text-block-54');
             if (errorText) {
-                errorText.textContent = message || 'Erreur';
+                errorText.textContent = 'Erreur';
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {

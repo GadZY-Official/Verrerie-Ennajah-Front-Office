@@ -97,7 +97,7 @@
                             <div>Subtotal</div>
                             <div>${formatPrice(totalPrice)} DT</div>
                         </div>
-                        <a href="/checkout.html" class="w-commerce-commercecartcheckoutbutton button">Continue to Checkout</a>
+                        <a href="checkout.html" class="w-commerce-commercecartcheckoutbutton button">Continue to Checkout</a>
                     </div>
                 </form>
             </div>
@@ -321,5 +321,5 @@
     };
 
     // Initialize cart items number on page load
-    document.addEventListener('DOMContentLoaded', updateCartItemsNum);
+    updateCartItemsNum()
 })();

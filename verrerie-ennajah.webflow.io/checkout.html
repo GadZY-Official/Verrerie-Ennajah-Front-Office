@@ -25,17 +25,35 @@
   <link
     href="../cdn.prod.website-files.com/686a5e194dc025de174612e0/686ff3558d8c8521c3413f2c_Verrerie&#32;Ennajah256.png"
     rel="apple-touch-icon" />
+  <link rel="stylesheet" href="styles/loader.css">
   <script
     type="text/javascript">window.__WEBFLOW_CURRENCY_SETTINGS = { "currencyCode": "USD", "symbol": "$", "decimal": ".", "fractionDigits": 2, "group": ",", "template": "{{wf {\"path\":\"symbol\",\"type\":\"PlainText\"} }} {{wf {\"path\":\"amount\",\"type\":\"CommercePrice\"} }} {{wf {\"path\":\"currencyCode\",\"type\":\"PlainText\"} }}", "hideDecimalForWholeNumbers": false };</script>
 </head>
 
 <body>
-  <div class="preloader">
-    <div class="loading-icon"><img
-        src="../cdn.prod.website-files.com/686a5e194dc025de174612e0/686a5e194dc025de174613ca_preloader.gif" alt=""
-        class="preloader-icon" /></div>
+  <div class="loader" id="loader">
+    <div class="box box-1">
+      <div class="side-left"></div>
+      <div class="side-right"></div>
+      <div class="side-top"></div>
+    </div>
+    <div class="box box-2">
+      <div class="side-left"></div>
+      <div class="side-right"></div>
+      <div class="side-top"></div>
+    </div>
+    <div class="box box-3">
+      <div class="side-left"></div>
+      <div class="side-right"></div>
+      <div class="side-top"></div>
+    </div>
+    <div class="box box-4">
+      <div class="side-left"></div>
+      <div class="side-right"></div>
+      <div class="side-top"></div>
+    </div>
   </div>
-  <div class="page-wrapper">
+  <div class="main-content page-wrapper" id="mainContent">
     <div data-collapse="medium" data-animation="default" data-duration="400" data-easing="ease" data-easing2="ease"
       role="banner" class="nav-bar w-nav">
       <div class="nav-top">
@@ -191,9 +209,7 @@
                 <div class="w-inline-block">Panier</div><img
                   src="../cdn.prod.website-files.com/686a5e194dc025de174612e0/686a5e194dc025de174613b5_cart-icon.svg"
                   alt="" class="cart-icon" />
-                <div
-                  data-wf-bindings="%5B%7B%22innerHTML%22%3A%7B%22type%22%3A%22Number%22%2C%22filter%22%3A%7B%22type%22%3A%22numberPrecision%22%2C%22params%22%3A%5B%220%22%2C%22numberPrecision%22%5D%7D%2C%22dataPath%22%3A%22database.commerceOrder.userItemsCount%22%7D%7D%5D"
-                  class="w-commerce-commercecartopenlinkcount item-count" id="cartItemsNum">0</div>
+                <div class="w-commerce-commercecartopenlinkcount item-count" id="cartItemsNum">0</div>
               </a>
             </div>
           </div>
@@ -399,117 +415,146 @@
   }
 }" data-wf-page-link-href-prefix="" class="w-commerce-commercecheckoutformcontainer checkout-form">
           <div class="w-commerce-commercelayoutmain order-main-column" id="cont">
-<form id="basicInfo" class="w-commerce-commercecheckoutcustomerinfowrapper order-block">
-    <div class="div-block-2" style="display: none;">
-        <div class="w-layout-hflex flex-block-200">
-            <img src="../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700614c517b9c34cc6c0cb_error123.png"
-                 loading="lazy" sizes="(max-width: 512px) 100vw, 512px"
-                 srcset="../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700614c517b9c34cc6c0cb_error123-p-500.png 500w, ../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700614c517b9c34cc6c0cb_error123.png 512w"
-                 alt="" class="image-333" />
-            <div class="text-block-54">Erreur</div>
-        </div>
-    </div>
-    <div>
-        <div class="w-commerce-commercecheckoutblockheader order-block-header">
-            <h4 class="order-block-heading">Informations client</h4>
-            <div class="text-block-19">* Obligatoire</div>
-        </div>
-        <fieldset class="w-commerce-commercecheckoutblockcontent order-block-content">
-            <label for="name" class="w-commerce-commercecheckoutlabel label">Nom complet *</label>
-            <input id="name" class="w-commerce-commercecheckoutshippingfullname input" name="name" type="text" required pattern="[A-Za-z\s]+" title="Le nom doit contenir uniquement des lettres et des espaces" />
-            <label for="email" class="w-commerce-commercecheckoutlabel label">E-mail *</label>
-            <input id="email" class="w-commerce-commercecheckoutemailinput input" type="email" name="email" required />
-            <label for="phone" class="w-commerce-commercecheckoutlabel label">Numéro de téléphone *</label>
-            <input id="phone" class="w-commerce-commercecheckoutshippingfullname input" name="phone" type="tel" required pattern="[0-9]{8}" title="Le numéro de téléphone doit contenir exactement 8 chiffres" />
-            <label for="nid_inp" class="w-commerce-commercecheckoutlabel label" id="nid_lab" style="display: none;">Numéro de carte d'identité *</label>
-            <input id="nid_inp" style="display: none;" class="w-commerce-commercecheckoutshippingfullname input" name="nid" type="text" pattern="[0-9]{8}" title="Le numéro de carte d'identité doit contenir exactement 8 chiffres" />
-            <label for="pays" class="w-commerce-commercecheckoutlabel label">Pays</label>
-            <input type="text" class="w-commerce-commercecheckoutshippingzippostalcode input" id="pays" disabled>
-            <div class="w-commerce-commercecheckoutrow form-columns">
-                <div class="w-commerce-commercecheckoutcolumn">
-                    <label for="etat" class="w-commerce-commercecheckoutlabel label">État/Province *</label>
-                    <div class="select-wrapper">
-                        <select id="etat" class="w-commerce-commercecheckoutbillingcountryselector select" name="address_country" required>
+            <form id="basicInfo" class="w-commerce-commercecheckoutcustomerinfowrapper order-block">
+              <div class="div-block-2" style="display: none;">
+                <div class="w-layout-hflex flex-block-200">
+                  <img
+                    src="../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700614c517b9c34cc6c0cb_error123.png"
+                    loading="lazy" sizes="(max-width: 512px) 100vw, 512px"
+                    srcset="../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700614c517b9c34cc6c0cb_error123-p-500.png 500w, ../cdn.prod.website-files.com/686a5e194dc025de174612e0/68700614c517b9c34cc6c0cb_error123.png 512w"
+                    alt="" class="image-333" />
+                  <div class="text-block-54">Erreur</div>
+                </div>
+              </div>
+              <div>
+                <div class="w-commerce-commercecheckoutblockheader order-block-header">
+                  <h4 class="order-block-heading">Informations client</h4>
+                  <div class="text-block-19">* Obligatoire</div>
+                </div>
+                <fieldset class="w-commerce-commercecheckoutblockcontent order-block-content">
+                  <label for="name" class="w-commerce-commercecheckoutlabel label">Nom complet *</label>
+                  <input id="name" class="w-commerce-commercecheckoutshippingfullname input" name="name" type="text"
+                    required pattern="[A-Za-z\s]+" title="Le nom doit contenir uniquement des lettres et des espaces" />
+                  <label for="email" class="w-commerce-commercecheckoutlabel label">E-mail *</label>
+                  <input id="email" class="w-commerce-commercecheckoutemailinput input" type="email" name="email"
+                    required />
+                  <label for="phone" class="w-commerce-commercecheckoutlabel label">Numéro de téléphone *</label>
+                  <input id="phone" class="w-commerce-commercecheckoutshippingfullname input" name="phone" type="tel"
+                    required pattern="[0-9]{8}" title="Le numéro de téléphone doit contenir exactement 8 chiffres" />
+                  <label for="nid_inp" class="w-commerce-commercecheckoutlabel label" id="nid_lab"
+                    style="display: none;">Numéro de carte d'identité *</label>
+                  <input id="nid_inp" style="display: none;" class="w-commerce-commercecheckoutshippingfullname input"
+                    name="nid" type="text" pattern="[0-9]{8}"
+                    title="Le numéro de carte d'identité doit contenir exactement 8 chiffres" />
+                  <label for="pays" class="w-commerce-commercecheckoutlabel label">Pays</label>
+                  <input type="text" class="w-commerce-commercecheckoutshippingzippostalcode input" id="pays" disabled>
+                  <div class="w-commerce-commercecheckoutrow form-columns">
+                    <div class="w-commerce-commercecheckoutcolumn">
+                      <label for="etat" class="w-commerce-commercecheckoutlabel label">État/Province *</label>
+                      <div class="select-wrapper">
+                        <select id="etat" class="w-commerce-commercecheckoutshippingstateprovince select-field w-select"
+                          name="address_country" required>
                         </select>
+                      </div>
                     </div>
+                    <div class="w-commerce-commercecheckoutcolumn">
+                      <label for="address_state" class="w-commerce-commercecheckoutlabel label">Ville</label>
+                      <div class="select-wrapper">
+                        <select id="address_state"
+                          class="w-commerce-commercecheckoutshippingstateprovince select-field w-select"
+                          name="address_state">
+                          <option value="">Sélectionner une ville</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="w-commerce-commercecheckoutcolumn">
+                      <label for="address_zip" class="w-commerce-commercecheckoutlabel label">Code postal</label>
+                      <input id="address_zip"
+                        class="w-commerce-commercecheckoutshippingzippostalcode input no-margin-bottom"
+                        name="address_zip" type="text" pattern="[0-9]{4}"
+                        title="Le code postal doit contenir exactement 4 chiffres" />
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </form>
+            <form class="w-commerce-commercecheckoutshippingmethodswrapper order-block" id="GetMethod">
+              <div>
+                <div class="w-commerce-commercecheckoutblockheader order-block-header">
+                  <h4 class="order-block-heading">Mode de livraison</h4>
                 </div>
-                <div class="w-commerce-commercecheckoutcolumn">
-                    <label for="address_state" class="w-commerce-commercecheckoutlabel label">Ville</label>
-                    <select id="address_state" class="w-commerce-commercecheckoutshippingstateprovince input" name="address_state">
-                        <option value="">Sélectionner une ville</option>
-                    </select>
-                </div>
-                <div class="w-commerce-commercecheckoutcolumn">
-                    <label for="address_zip" class="w-commerce-commercecheckoutlabel label">Code postal</label>
-                    <input id="address_zip" class="w-commerce-commercecheckoutshippingzippostalcode input no-margin-bottom" name="address_zip" type="text" pattern="[0-9]{4}" title="Le code postal doit contenir exactement 4 chiffres" />
-                </div>
-            </div>
-        </fieldset>
-    </div>
-</form>
-<form class="w-commerce-commercecheckoutshippingmethodswrapper order-block" id="GetMethod">
-    <div>
-        <div class="w-commerce-commercecheckoutblockheader order-block-header">
-            <h4 class="order-block-heading">Mode de livraison</h4>
-        </div>
-        <fieldset>
-            <div class="w-commerce-commercecheckoutshippingmethodslist shipping-methods-list">
-                <label class="w-commerce-commercecheckoutshippingmethoditem shipping-method-item">
-                    <input class="shipping-method-radio-button" type="radio" name="shipping-method-choice" id="retrait" required />
-                    <div class="w-commerce-commercecheckoutshippingmethoddescriptionblock">
+                <fieldset>
+                  <div class="w-commerce-commercecheckoutshippingmethodslist shipping-methods-list">
+                    <label class="w-commerce-commercecheckoutshippingmethoditem shipping-method-item">
+                      <input class="shipping-method-radio-button" type="radio" name="shipping-method-choice"
+                        id="retrait" required />
+                      <div class="w-commerce-commercecheckoutshippingmethoddescriptionblock">
                         <div class="w-commerce-commerceboldtextblock text-block-20">Retrait en magasin - Nabeul</div>
                         <div class="text-grey">Av. Habib Thameur, Nabeul‎</div>
-                    </div>
-                    <div class="text-block-34">Gratuit</div>
-                </label>
-                <label class="w-commerce-commercecheckoutshippingmethoditem shipping-method-item" id="livraison_cont">
-                    <input class="shipping-method-radio-button" type="radio" name="shipping-method-choice" id="livraison" />
-                    <div class="w-commerce-commercecheckoutshippingmethoddescriptionblock">
+                      </div>
+                      <div class="text-block-34">Gratuit</div>
+                    </label>
+                    <label class="w-commerce-commercecheckoutshippingmethoditem shipping-method-item"
+                      id="livraison_cont">
+                      <input class="shipping-method-radio-button" type="radio" name="shipping-method-choice"
+                        id="livraison" />
+                      <div class="w-commerce-commercecheckoutshippingmethoddescriptionblock">
                         <div class="w-commerce-commerceboldtextblock text-block-20">Livraison</div>
                         <div class="text-grey">Av. Habib Thameur, Nabeul‎</div>
-                    </div>
-                    <div class="text-block-34">8 DT</div>
-                </label>
-            </div>
-            <div style="display:none" class="w-commerce-commercecheckoutshippingmethodsemptystate">
-                <div>No shipping methods are available for the address given.</div>
-            </div>
-        </fieldset>
-    </div>
-</form>
-<form id="liv_form" class="w-commerce-commercecheckoutshippingaddresswrapper order-block" style="display: none;">
-    <div>
-        <div class="w-commerce-commercecheckoutblockheader order-block-header">
-            <h4 class="order-block-heading">Adresse de livraison</h4>
-            <div class="text-block-18">* Obligatoire</div>
-        </div>
-        <fieldset class="w-commerce-commercecheckoutblockcontent order-block-content">
-            <label for="address_line1" class="w-commerce-commercecheckoutlabel label">Adresse *</label>
-            <input id="address_line1" class="w-commerce-commercecheckoutshippingstreetaddress input" name="address_line1" type="text" required />
-            <div class="w-commerce-commercecheckoutrow form-columns">
-                <div class="w-commerce-commercecheckoutcolumn">
-                    <label for="etat_liv" class="w-commerce-commercecheckoutlabel label">État/Province *</label>
-                    <div class="select-wrapper">
-                        <select id="etat_liv" class="w-commerce-commercecheckoutbillingcountryselector select" name="address_country" required>
+                      </div>
+                      <div class="text-block-34">8 DT</div>
+                    </label>
+                  </div>
+                  <div style="display:none" class="w-commerce-commercecheckoutshippingmethodsemptystate">
+                    <div>No shipping methods are available for the address given.</div>
+                  </div>
+                </fieldset>
+              </div>
+            </form>
+            <form id="liv_form" class="w-commerce-commercecheckoutshippingaddresswrapper order-block"
+              style="display: none;">
+              <div>
+                <div class="w-commerce-commercecheckoutblockheader order-block-header">
+                  <h4 class="order-block-heading">Adresse de livraison</h4>
+                  <div class="text-block-18">* Obligatoire</div>
+                </div>
+                <fieldset class="w-commerce-commercecheckoutblockcontent order-block-content">
+                  <label for="address_line1" class="w-commerce-commercecheckoutlabel label">Adresse *</label>
+                  <input id="address_line1" class="w-commerce-commercecheckoutshippingstreetaddress input"
+                    name="address_line1" type="text" required />
+                  <div class="w-commerce-commercecheckoutrow form-columns">
+                    <div class="w-commerce-commercecheckoutcolumn">
+                      <label for="etat_liv" class="w-commerce-commercecheckoutlabel label">État/Province *</label>
+                      <div class="select-wrapper">
+                        <select id="etat_liv"
+                          class="w-commerce-commercecheckoutshippingstateprovince input select-field w-select"
+                          name="address_country" required>
                         </select>
+                      </div>
                     </div>
-                </div>
-                <div class="w-commerce-commercecheckoutcolumn">
-                    <label for="address_state_liv" class="w-commerce-commercecheckoutlabel label">Ville *</label>
-                    <select id="address_state_liv" class="w-commerce-commercecheckoutshippingstateprovince input" name="address_state" required>
-                        <option value="">Sélectionner une ville</option>
-                    </select>
-                </div>
-                <div class="w-commerce-commercecheckoutcolumn">
-                    <label for="address_zip_liv" class="w-commerce-commercecheckoutlabel label">Code postal *</label>
-                    <input id="address_zip_liv" class="w-commerce-commercecheckoutshippingzippostalcode input" name="address_zip" type="text" required pattern="[0-9]{4}" title="Le code postal doit contenir exactement 4 chiffres" />
-                </div>
-            </div>
-            <label for="pays_liv" class="w-commerce-commercecheckoutlabel label">Pays</label>
-            <input type="text" class="w-commerce-commercecheckoutshippingzippostalcode input" id="pays_liv" disabled>
-        </fieldset>
-    </div>
-</form>
+                    <div class="w-commerce-commercecheckoutcolumn">
+                      <label for="address_state_liv" class="w-commerce-commercecheckoutlabel label">Ville *</label>
+                      <div class="select-wrapper">
+                        <select id="address_state_liv"
+                          class="w-commerce-commercecheckoutshippingstateprovince input select-field w-select"
+                          name="address_state" required>
+                          <option value="">Sélectionner une ville</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="w-commerce-commercecheckoutcolumn">
+                      <label for="address_zip_liv" class="w-commerce-commercecheckoutlabel label">Code postal *</label>
+                      <input id="address_zip_liv" class="w-commerce-commercecheckoutshippingzippostalcode input"
+                        name="address_zip" type="text" required pattern="[0-9]{4}"
+                        title="Le code postal doit contenir exactement 4 chiffres" />
+                    </div>
+                  </div>
+                  <label for="pays_liv" class="w-commerce-commercecheckoutlabel label">Pays</label>
+                  <input type="text" class="w-commerce-commercecheckoutshippingzippostalcode input" id="pays_liv"
+                    disabled>
+                </fieldset>
+              </div>
+            </form>
           </div>
           <div class="w-commerce-commercelayoutsidebar order-sidebar">
             <div class="w-commerce-commercecheckoutorderitemswrapper order-block-side">
@@ -530,7 +575,8 @@
                   <div class="text-block-14">Sous-total</div>
                   <div class="text-block-15" id="priceCartTotal">450.000 DT</div>
                 </div>
-                <div class="w-commerce-commercecheckoutordersummaryextraitemslist" id="deliveryMode" style="display: none;">
+                <div class="w-commerce-commercecheckoutordersummaryextraitemslist" id="deliveryMode"
+                  style="display: none;">
                   <div class="w-commerce-commercecheckoutordersummaryextraitemslistitem">
                     <div class="w-layout-vflex flex-block">
                       <div>Mode de livraison</div>
@@ -541,7 +587,8 @@
                 </div>
                 <div class="w-commerce-commercecheckoutsummarylineitem">
                   <div class="text-block-13">Total de la commande</div>
-                  <div class="w-commerce-commercecheckoutsummarytotal text-block-17" id="priceCommandeTotal">458.000 DT</div>
+                  <div class="w-commerce-commercecheckoutsummarytotal text-block-17" id="priceCommandeTotal">458.000 DT
+                  </div>
                 </div>
               </fieldset>
             </div><a value="Passer la commande" id="passerCommande"
