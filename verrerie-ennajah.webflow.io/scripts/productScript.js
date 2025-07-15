@@ -137,7 +137,7 @@
 
                 // STEP 4: Reinsert all scripts with original attributes
                 const insertScripts = scriptList => {
-                    scriptList.forEach(({ parent, nextSibling, attributes, content }) => {
+                    scriptList.forEach(({ parent, nextSibling, attributes, content }), async () => {
                         const newScript = document.createElement('script');
                         for (const [key, value] of Object.entries(attributes)) {
                             newScript.setAttribute(key, value);
@@ -148,33 +148,40 @@
                     });
                 };
 
-                insertScripts(jsonScripts);    // JSON scripts first
+                function delay(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+                (async () => {
+                    await insertScripts(jsonScripts);    // JSON scripts first
 
-                const productImagesScript = document.getElementById('productImages');
+                    const productImagesScript = document.getElementById('productImages');
 
-                // Create JSON for product images
-                const imageItems = product.images.map(imageUrl => {
-                    const fileName = imageUrl.split('/').pop();
-                    const id = fileName.split('.').slice(0, -1).join('.');
-                    return {
-                        _id: id,
-                        origFileName: fileName,
-                        fileName: fileName,
-                        fileSize: 0, // Placeholder as fileSize is not available
-                        height: 1200,
-                        url: imageUrl,
-                        width: 1200,
-                        type: "image"
-                    };
-                });
+                    // Create JSON for product images
+                    const imageItems = product.images.map(imageUrl => {
+                        const fileName = imageUrl.split('/').pop();
+                        const id = fileName.split('.').slice(0, -1).join('.');
+                        return {
+                            _id: id,
+                            origFileName: fileName,
+                            fileName: fileName,
+                            fileSize: 0, // Placeholder as fileSize is not available
+                            height: 1200,
+                            url: imageUrl,
+                            width: 1200,
+                            type: "image"
+                        };
+                    });
 
-                // Set JSON content in script tag with group
-                productImagesScript.textContent = JSON.stringify({
-                    items: imageItems,
-                    group: product.category || "Unknown"
-                }, null, 2);
+                    // Set JSON content in script tag with group
+                    productImagesScript.textContent = JSON.stringify({
+                        items: imageItems,
+                        group: product.category || "Unknown"
+                    }, null, 2);
 
-                insertScripts(otherScripts);   // Then other scripts
+                    await delay(600);
+                    await insertScripts(otherScripts);   // Then other scripts
+                })()
+
 
                 // Set product name
                 productName.textContent = product.name;
