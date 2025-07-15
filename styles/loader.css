@@ -155,3 +155,7 @@
             border: none;
             padding: 0;
         }
+
+        .cart-remove-link {
+            width: fit-content !important;
+        }

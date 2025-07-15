@@ -81,7 +81,7 @@
                         <div>${formatPrice(item.dimensions.price)} DT</div>
                         <a href="#" class="cart-remove-link" data-product-id="${item.productId}" data-x="${item.dimensions.x}" data-y="${item.dimensions.y}" data-z="${item.dimensions.z || ''}" aria-label="Remove item from cart">Supprimer</a>
                     </div>
-                    <input type="number" class="w-commerce-commercecartquantity input quantity-input" required pattern="^[0-9]+$" inputmode="numeric" name="quantity" autocomplete="off" value="${item.qty}" min="1" max="99" onChange="enforceLimit(this)" onInput="enforceLimit(this)">
+                    <input type="number" class="w-commerce-commercecartquantity input quantity-input" required pattern="^[0-9]+$" inputmode="numeric" name="quantity" autocomplete="off" value="${item.qty}" min="1" max="99" onChange="enforceLimit(this)" onInput="enforceLimit(this)" data-product-id="${item.productId}" data-x="${item.dimensions.x}" data-y="${item.dimensions.y}" data-z="${item.dimensions.z || ''}">
                 </div>
             `;
         }));
@@ -183,6 +183,7 @@
     // Update quantity of an item in cart
     window.updateQty = function (productId, dimensions, qty) {
         if (!productId || !dimensions || !Number.isInteger(qty) || qty <= 0) {
+            console.log(productId, dimensions, qty)
             console.error('Invalid input: productId, dimensions, and positive integer qty are required');
             return false;
         }
