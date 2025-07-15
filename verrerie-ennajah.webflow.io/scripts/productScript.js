@@ -137,7 +137,8 @@
             }
 
             // Function to insert scripts
-            const insertScripts = (scriptList) => {
+            const insertScripts = async (scriptList) => {
+                await delay(1000)
                 scriptList.forEach(({ parent, nextSibling, attributes, content }) => {
                     const newScript = document.createElement('script');
                     for (const [key, value] of Object.entries(attributes)) {
@@ -147,10 +148,11 @@
                     if (nextSibling) parent.insertBefore(newScript, nextSibling);
                     else parent.appendChild(newScript);
                 });
+                await delay(1000)
             };
 
             // Insert JSON scripts
-            insertScripts(jsonScripts);
+            await insertScripts(jsonScripts);
 
             const productImagesScript = document.getElementById('productImages');
 
@@ -176,10 +178,8 @@
                 group: product.category || "Unknown"
             }, null, 2);
 
-            await delay(1000)
-
             // Insert other scripts after delay
-            insertScripts(otherScripts);
+            await insertScripts(otherScripts);
 
             const domContentLoadedEvent = new Event('DOMContentLoaded', {
                 bubbles: true,
