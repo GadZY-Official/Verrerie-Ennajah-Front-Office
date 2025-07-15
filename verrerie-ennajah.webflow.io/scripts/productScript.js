@@ -151,6 +151,7 @@
 
             // Insert JSON scripts
             insertScripts(jsonScripts);
+            await delay(5000);
 
             const productImagesScript = document.getElementById('productImages');
 
