@@ -417,26 +417,26 @@
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-4">Numéro de téléphone</label>
                                 <div class="text-block-42">${formData.basicInfo.phone || ''}</div>
                             </div>
-                            <div class="w-commerce-commercecheckoutsummaryitem">
+                            ${formData.basicInfo.nid ? `<div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-5">Numéro de carte d'identité</label>
                                 <div class="text-block-43">${formData.basicInfo.nid || ''}</div>
-                            </div>
+                            </div>` : ''}
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-6">Pays</label>
-                                <div class="text-block-39">${formData.basicInfo.address_country || 'Tunisie'}</div>
+                                <div class="text-block-39">${formData.basicInfo.pays || 'Tunisie'}</div>
                             </div>
                             <div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label">État/Province</label>
-                                <div class="text-block-38">${formData.basicInfo.address_state || ''}</div>
+                                <div class="text-block-38">${formData.basicInfo.address_country || ''}</div>
                             </div>
-                            <div class="w-commerce-commercecheckoutsummaryitem">
+                            ${formData.basicInfo.address_state ? `<div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-7">Ville</label>
-                                <div class="text-block-44">${formData.basicInfo.address_city || ''}</div>
-                            </div>
-                            <div class="w-commerce-commercecheckoutsummaryitem">
+                                <div class="text-block-44">${formData.basicInfo.address_state || ''}</div>
+                            </div>` : ''}
+                            ${formData.basicInfo.address_zip ? `<div class="w-commerce-commercecheckoutsummaryitem">
                                 <label class="w-commerce-commercecheckoutsummarylabel field-label-8">Code postal</label>
                                 <div class="text-block-45">${formData.basicInfo.address_zip || ''}</div>
-                            </div>
+                            </div>` : ''}
                         </div>
                         <div class="w-commerce-commercecheckoutcolumn">
                             <div data-wf-bindings="%5B%5D" data-wf-conditions="%7B%22condition%22%3A%7B%22fields%22%3A%7B%22requiresShipping%22%3A%7B%22eq%22%3A%22true%22%2C%22type%22%3A%22Bool%22%7D%7D%7D%2C%22dataPath%22%3A%22database.commerceOrder%22%7D" class="w-commerce-commercecheckoutsummaryitem" style="display: ${livraison ? 'block' : 'none'}">
