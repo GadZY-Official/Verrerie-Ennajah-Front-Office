@@ -124,7 +124,6 @@
         if (product) {
             const loader = document.getElementById('loader');
             const mainContent = document.getElementById('mainContent');
-            await delay(5000);
 
             // STEP 3: Sort - JSON scripts first, then others (both in reverse order)
             const jsonScripts = [];
@@ -176,9 +175,6 @@
                 items: imageItems,
                 group: product.category || "Unknown"
             }, null, 2);
-
-            // Wait for 1 second
-            await delay(5000);
 
             // Insert other scripts after delay
             insertScripts(otherScripts);
