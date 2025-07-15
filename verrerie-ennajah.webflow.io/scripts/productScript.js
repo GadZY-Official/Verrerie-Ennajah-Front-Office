@@ -177,7 +177,7 @@
             }, null, 2);
 
             // Wait for 1 second
-            await delay(700);
+            await delay(5000);
 
             // Insert other scripts after delay
             insertScripts(otherScripts);
