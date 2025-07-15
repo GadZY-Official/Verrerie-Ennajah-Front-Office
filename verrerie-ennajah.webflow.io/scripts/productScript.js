@@ -1,4 +1,4 @@
-(function () {
+(async function () {
     const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
     const productName = document.getElementById('productName');
     const productNameDir = document.getElementById('productNameDir');
@@ -69,6 +69,9 @@
         return 'Dimensions non valides';
     }
 
+    // Function to delay execution
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
     if (!productId) {
         productName.textContent = 'No product ID provided';
         if (productNameDir) productNameDir.textContent = 'No product ID provided';
@@ -107,277 +110,275 @@
         script.remove();
     });
 
-    fetch(`${api}/products.json`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
+    try {
+        const response = await fetch(`${api}/products.json`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}, StatusText: ${response.statusText}`);
+        }
+        const products = await response.json();
+
+        if (!Array.isArray(products)) {
+            throw new Error('Invalid data format: Expected an array of products');
+        }
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            const loader = document.getElementById('loader');
+            const mainContent = document.getElementById('mainContent');
+
+            // STEP 3: Sort - JSON scripts first, then others (both in reverse order)
+            const jsonScripts = [];
+            const otherScripts = [];
+
+            for (let i = deferredScripts.length - 1; i >= 0; i--) {
+                const s = deferredScripts[i];
+                const type = s.attributes['type'] || 'text/javascript';
+                if (type === 'application/json') jsonScripts.push(s);
+                else otherScripts.push(s);
             }
-            return response.json();
-        })
-        .then(products => {
-            if (!Array.isArray(products)) {
-                throw new Error('Invalid data format: Expected an array of products');
-            }
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                const loader = document.getElementById('loader');
-                const mainContent = document.getElementById('mainContent');
-                loader.style.display = 'none';
-                mainContent.style.display = 'block';
-                // STEP 3: Sort - JSON scripts first, then others (both in reverse order)
-                const jsonScripts = [];
-                const otherScripts = [];
 
-                for (let i = deferredScripts.length - 1; i >= 0; i--) {
-                    const s = deferredScripts[i];
-                    const type = s.attributes['type'] || 'text/javascript';
-                    if (type === 'application/json') jsonScripts.push(s);
-                    else otherScripts.push(s);
-                }
-
-                // STEP 4: Reinsert all scripts with original attributes
-                const insertScripts = scriptList => {
-                    scriptList.forEach(({ parent, nextSibling, attributes, content }), async () => {
-                        const newScript = document.createElement('script');
-                        for (const [key, value] of Object.entries(attributes)) {
-                            newScript.setAttribute(key, value);
-                        }
-                        if (content) newScript.textContent = content;
-                        if (nextSibling) parent.insertBefore(newScript, nextSibling);
-                        else parent.appendChild(newScript);
-                    });
-                };
-
-                function delay(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                }
-                (async () => {
-                    await insertScripts(jsonScripts);    // JSON scripts first
-
-                    const productImagesScript = document.getElementById('productImages');
-
-                    // Create JSON for product images
-                    const imageItems = product.images.map(imageUrl => {
-                        const fileName = imageUrl.split('/').pop();
-                        const id = fileName.split('.').slice(0, -1).join('.');
-                        return {
-                            _id: id,
-                            origFileName: fileName,
-                            fileName: fileName,
-                            fileSize: 0, // Placeholder as fileSize is not available
-                            height: 1200,
-                            url: imageUrl,
-                            width: 1200,
-                            type: "image"
-                        };
-                    });
-
-                    // Set JSON content in script tag with group
-                    productImagesScript.textContent = JSON.stringify({
-                        items: imageItems,
-                        group: product.category || "Unknown"
-                    }, null, 2);
-
-                    await delay(600);
-                    await insertScripts(otherScripts);   // Then other scripts
-                })()
-
-
-                // Set product name
-                productName.textContent = product.name;
-                if (productNameDir) productNameDir.textContent = product.name;
-
-                // Set product description
-                if (desc) desc.textContent = product.description || 'Aucune description disponible';
-
-                // Set product image srcset
-                if (product.images && product.images[0]) {
-                    productImage.srcset = product.images[0];
-                }
-
-                // Set YouTube video iframe src
-                if (youtubeVideo && youtubeVideoContainer && product.youtubeLink) {
-                    const videoId = product.youtubeLink.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-                    if (videoId) {
-                        youtubeVideo.src = `https://www.youtube.com/embed/${videoId}`;
-                        youtubeVideoContainer.style.display = 'block';
-                    } else {
-                        youtubeVideoContainer.style.display = 'none';
+            // Function to insert scripts
+            const insertScripts = (scriptList) => {
+                scriptList.forEach(({ parent, nextSibling, attributes, content }) => {
+                    const newScript = document.createElement('script');
+                    for (const [key, value] of Object.entries(attributes)) {
+                        newScript.setAttribute(key, value);
                     }
-                } else if (youtubeVideoContainer) {
+                    if (content) newScript.textContent = content;
+                    if (nextSibling) parent.insertBefore(newScript, nextSibling);
+                    else parent.appendChild(newScript);
+                });
+            };
+
+            // Insert JSON scripts
+            insertScripts(jsonScripts);
+
+            const productImagesScript = document.getElementById('productImages');
+
+            // Create JSON for product images
+            const imageItems = product.images.map(imageUrl => {
+                const fileName = imageUrl.split('/').pop();
+                const id = fileName.split('.').slice(0, -1).join('.');
+                return {
+                    _id: id,
+                    origFileName: fileName,
+                    fileName: fileName,
+                    fileSize: 0, // Placeholder as fileSize is not available
+                    height: 1200,
+                    url: imageUrl,
+                    width: 1200,
+                    type: "image"
+                };
+            });
+
+            // Set JSON content in script tag with group
+            productImagesScript.textContent = JSON.stringify({
+                items: imageItems,
+                group: product.category || "Unknown"
+            }, null, 2);
+
+            // Wait for 1 second
+            await delay(700);
+
+            // Insert other scripts after delay
+            insertScripts(otherScripts);
+
+            loader.style.display = 'none';
+            mainContent.style.display = 'block';
+
+            // Set product name
+            productName.textContent = product.name;
+            if (productNameDir) productNameDir.textContent = product.name;
+
+            // Set product description
+            if (desc) desc.textContent = product.description || 'Aucune description disponible';
+
+            // Set product image srcset
+            if (product.images && product.images[0]) {
+                productImage.srcset = product.images[0];
+            }
+
+            // Set YouTube video iframe src
+            if (youtubeVideo && youtubeVideoContainer && product.youtubeLink) {
+                const videoId = product.youtubeLink.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+                if (videoId) {
+                    youtubeVideo.src = `https://www.youtube.com/embed/${videoId}`;
+                    youtubeVideoContainer.style.display = 'block';
+                } else {
                     youtubeVideoContainer.style.display = 'none';
                 }
+            } else if (youtubeVideoContainer) {
+                youtubeVideoContainer.style.display = 'none';
+            }
 
-                // Populate dimension picker
-                dimensionPicker.innerHTML = ''; // Clear existing options
-                product.defaultDimensions.forEach((dim, index) => {
-                    const zDimension = dim.z ? `×${dim.z}mm` : '';
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = `${dim.x}cm×${dim.y}cm${zDimension}`;
-                    dimensionPicker.appendChild(option);
-                });
+            // Populate dimension picker
+            dimensionPicker.innerHTML = ''; // Clear existing options
+            product.defaultDimensions.forEach((dim, index) => {
+                const zDimension = dim.z ? `×${dim.z}mm` : '';
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${dim.x}cm×${dim.y}cm${zDimension}`;
+                dimensionPicker.appendChild(option);
+            });
 
-                // Add custom option if allowCustom is true
-                if (product.allowCustom) {
-                    const customOptionElement = document.createElement('option');
-                    customOptionElement.value = 'custom';
-                    customOptionElement.textContent = 'Personnalisé';
-                    dimensionPicker.appendChild(customOptionElement);
+            // Add custom option if allowCustom is true
+            if (product.allowCustom) {
+                const customOptionElement = document.createElement('option');
+                customOptionElement.value = 'custom';
+                customOptionElement.textContent = 'Personnalisé';
+                dimensionPicker.appendChild(customOptionElement);
+            }
+
+            // Populate zValues select if custom mode is enabled
+            function updateZValues() {
+                if (zValues && product.allowCustom && dimensionPicker.value === 'custom' && product.availableZ) {
+                    zValues.innerHTML = ''; // Clear existing options
+                    product.availableZ.forEach(z => {
+                        const option = document.createElement('option');
+                        option.value = z.z;
+                        option.textContent = `${z.z} mm`;
+                        zValues.appendChild(option);
+                    });
+                } else if (zValues) {
+                    zValues.innerHTML = '<option value="">Choisir d’abord une dimension</option>';
                 }
+            }
 
-                // Populate zValues select if custom mode is enabled
-                function updateZValues() {
-                    if (zValues && product.allowCustom && dimensionPicker.value === 'custom' && product.availableZ) {
-                        zValues.innerHTML = ''; // Clear existing options
-                        product.availableZ.forEach(z => {
-                            const option = document.createElement('option');
-                            option.value = z.z;
-                            option.textContent = `${z.z} mm`;
-                            zValues.appendChild(option);
-                        });
-                    } else if (zValues) {
-                        zValues.innerHTML = '<option value="">Choisir d’abord une dimension</option>';
+            // Update price based on dimensionPicker or custom inputs
+            function updatePrice() {
+                if (dimensionPicker.value === 'custom' && xInput && yInput && zValues && product.allowCustom) {
+                    const x = parseFloat(xInput.value);
+                    const y = parseFloat(yInput.value);
+                    const z = parseFloat(zValues.value);
+                    if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+                        const calculatedPrice = calculateCustomPrice(x, y, z, product.availableZ);
+                        priceElement.textContent = typeof calculatedPrice === 'number' ? formatPrice(calculatedPrice) + ' DT' : calculatedPrice;
+                    } else {
+                        priceElement.textContent = 'Entrez dimensions valides';
                     }
+                } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
+                    priceElement.textContent = formatPrice(product.defaultDimensions[dimensionPicker.value].price) + ' DT';
+                } else {
+                    priceElement.textContent = 'Choisir une dimension';
                 }
+            }
 
-                // Update price based on dimensionPicker or custom inputs
-                function updatePrice() {
+            // Add to cart handler
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', () => {
+                    if (!window.addToCart) {
+                        console.error('addToCart method not available');
+                        return;
+                    }
+                    const qty = parseInt(qtyInput ? qtyInput.value : '1', 10);
+                    if (!Number.isInteger(qty) || qty <= 0) {
+                        console.error('Invalid quantity');
+                        priceElement.textContent = 'Entrez une quantité valide';
+                        return;
+                    }
+
+                    let dimensions;
                     if (dimensionPicker.value === 'custom' && xInput && yInput && zValues && product.allowCustom) {
                         const x = parseFloat(xInput.value);
                         const y = parseFloat(yInput.value);
                         const z = parseFloat(zValues.value);
                         if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
                             const calculatedPrice = calculateCustomPrice(x, y, z, product.availableZ);
-                            priceElement.textContent = typeof calculatedPrice === 'number' ? formatPrice(calculatedPrice) + ' DT' : calculatedPrice;
-                        } else {
-                            priceElement.textContent = 'Entrez dimensions valides';
-                        }
-                    } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
-                        priceElement.textContent = formatPrice(product.defaultDimensions[dimensionPicker.value].price) + ' DT';
-                    } else {
-                        priceElement.textContent = 'Choisir une dimension';
-                    }
-                }
-
-                // Add to cart handler
-                if (addToCartBtn) {
-                    addToCartBtn.addEventListener('click', () => {
-                        if (!window.addToCart) {
-                            console.error('addToCart method not available');
-                            return;
-                        }
-                        const qty = parseInt(qtyInput ? qtyInput.value : '1', 10);
-                        if (!Number.isInteger(qty) || qty <= 0) {
-                            console.error('Invalid quantity');
-                            priceElement.textContent = 'Entrez une quantité valide';
-                            return;
-                        }
-
-                        let dimensions;
-                        if (dimensionPicker.value === 'custom' && xInput && yInput && zValues && product.allowCustom) {
-                            const x = parseFloat(xInput.value);
-                            const y = parseFloat(yInput.value);
-                            const z = parseFloat(zValues.value);
-                            if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
-                                const calculatedPrice = calculateCustomPrice(x, y, z, product.availableZ);
-                                if (typeof calculatedPrice !== 'number') {
-                                    console.error('Invalid dimensions for custom price');
-                                    priceElement.textContent = calculatedPrice;
-                                    return;
-                                }
-                                dimensions = { x, y, z, price: calculatedPrice };
-                            } else {
-                                console.error('Invalid custom dimensions');
-                                priceElement.textContent = 'Entrez dimensions valides';
+                            if (typeof calculatedPrice !== 'number') {
+                                console.error('Invalid dimensions for custom price');
+                                priceElement.textContent = calculatedPrice;
                                 return;
                             }
-                        } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
-                            const selectedDim = product.defaultDimensions[dimensionPicker.value];
-                            dimensions = {
-                                x: selectedDim.x,
-                                y: selectedDim.y,
-                                z: selectedDim.z || null,
-                                price: selectedDim.price
-                            };
+                            dimensions = { x, y, z, price: calculatedPrice };
                         } else {
-                            console.error('No valid dimension selected');
-                            priceElement.textContent = 'Choisir dimension';
+                            console.error('Invalid custom dimensions');
+                            priceElement.textContent = 'Entrez dimensions valides';
                             return;
                         }
+                    } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
+                        const selectedDim = product.defaultDimensions[dimensionPicker.value];
+                        dimensions = {
+                            x: selectedDim.x,
+                            y: selectedDim.y,
+                            z: selectedDim.z || null,
+                            price: selectedDim.price
+                        };
+                    } else {
+                        console.error('No valid dimension selected');
+                        priceElement.textContent = 'Choisir dimension';
+                        return;
+                    }
 
-                        const success = window.addToCart(product.id, dimensions, qty);
-                        if (success) {
-                            priceElement.textContent = 'Ajouté au panier';
-                            setTimeout(updatePrice, 2000); // Revert price display after 2 seconds
-                        } else {
-                            priceElement.textContent = 'Erreur lors de l’ajout au panier';
-                        }
-                    });
-                }
-
-                // Toggle customOption div visibility and update zValues and price
-                function toggleCustomOption() {
-                    customOption.style.display = dimensionPicker.value === 'custom' ? 'flex' : 'none';
-                    updateZValues();
-                    updatePrice();
-                }
-
-                // Set initial visibility, zValues, and price, and add event listeners
-                toggleCustomOption();
-                dimensionPicker.addEventListener('change', toggleCustomOption);
-                if (xInput) xInput.addEventListener('input', updatePrice);
-                if (yInput) yInput.addEventListener('input', updatePrice);
-                if (zValues) zValues.addEventListener('change', updatePrice);
-
-                // Populate associated content with related products
-                if (associatedContent && product.category) {
-                    // Filter products with the same category, excluding current product
-                    const relatedProducts = products
-                        .filter(p => p.category === product.category && p.id !== productId)
-                        // Randomize order
-                        .sort(() => Math.random() - 0.5);
-
-                    associatedContent.innerHTML = ''; // Clear existing content
-                    relatedProducts.forEach(relatedProduct => {
-                        const dimensions = relatedProduct.defaultDimensions[0];
-                        const zDimension = dimensions.z ? `×${dimensions.z}mm` : '';
-                        const formattedPrice = formatPrice(dimensions.price);
-
-                        const productCard = `
-                            <div role="listitem" class="product-card-wrapper w-dyn-item">
-                                <a href="product.html?id=${relatedProduct.id}" class="product-card w-inline-block">
-                                    <div class="product-card-image-wrapper">
-                                        <img src="${relatedProduct.images[0]}" alt="${relatedProduct.name}" sizes="100vw">
-                                    </div>
-                                    <h6 class="product-card-heading">${relatedProduct.name}</h6>
-                                    <div class="text-block-4">${dimensions.x}cm×${dimensions.y}cm${zDimension}</div>
-                                    <div class="product-card-price">${formattedPrice} DT</div>
-                                </a>
-                            </div>
-                        `;
-                        associatedContent.insertAdjacentHTML('beforeend', productCard);
-                    });
-                }
-
-                // Dispatch custom event to signal data is ready
-                document.dispatchEvent(new Event('productDataReady'));
-            } else {
-                window.location.href = '404.html';
+                    const success = window.addToCart(product.id, dimensions, qty);
+                    if (success) {
+                        priceElement.textContent = 'Ajouté au panier';
+                        setTimeout(updatePrice, 2000); // Revert price display after 2 seconds
+                    } else {
+                        priceElement.textContent = 'Erreur lors de l’ajout au panier';
+                    }
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error fetching product:', error.message);
-            productName.textContent = 'Erreur de chargement du produit : ' + error.message;
-            if (productNameDir) productNameDir.textContent = 'Erreur de chargement du produit : ' + error.message;
-            productImagesScript.textContent = '{}';
-            dimensionPicker.innerHTML = '<option value="">Erreur de chargement des dimensions</option>';
-            customOption.style.display = 'none';
-            if (zValues) zValues.innerHTML = '<option value="">Erreur de chargement des valeurs d’épaisseur</option>';
-            if (desc) desc.textContent = 'Erreur de chargement de la description';
-            if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
-            if (associatedContent) associatedContent.innerHTML = '';
-            if (priceElement) priceElement.textContent = 'Erreur de chargement du prix : ' + error.message;
+
+            // Toggle customOption div visibility and update zValues and price
+            function toggleCustomOption() {
+                customOption.style.display = dimensionPicker.value === 'custom' ? 'flex' : 'none';
+                updateZValues();
+                updatePrice();
+            }
+
+            // Set initial visibility, zValues, and price, and add event listeners
+            toggleCustomOption();
+            dimensionPicker.addEventListener('change', toggleCustomOption);
+            if (xInput) xInput.addEventListener('input', updatePrice);
+            if (yInput) yInput.addEventListener('input', updatePrice);
+            if (zValues) zValues.addEventListener('change', updatePrice);
+
+            // Populate associated content with related products
+            if (associatedContent && product.category) {
+                // Filter products with the same category, excluding current product
+                const relatedProducts = products
+                    .filter(p => p.category === product.category && p.id !== productId)
+                    // Randomize order
+                    .sort(() => Math.random() - 0.5);
+
+                associatedContent.innerHTML = ''; // Clear existing content
+                relatedProducts.forEach(relatedProduct => {
+                    const dimensions = relatedProduct.defaultDimensions[0];
+                    const zDimension = dimensions.z ? `×${dimensions.z}mm` : '';
+                    const formattedPrice = formatPrice(dimensions.price);
+
+                    const productCard = `
+                        <div role="listitem" class="product-card-wrapper w-dyn-item">
+                            <a href="product.html?id=${relatedProduct.id}" class="product-card w-inline-block">
+                                <div class="product-card-image-wrapper">
+                                    <img src="${relatedProduct.images[0]}" alt="${relatedProduct.name}" sizes="100vw">
+                                </div>
+                                <h6 class="product-card-heading">${relatedProduct.name}</h6>
+                                <div class="text-block-4">${dimensions.x}cm×${dimensions.y}cm${zDimension}</div>
+                                <div class="product-card-price">${formattedPrice} DT</div>
+                            </a>
+                        </div>
+                    `;
+                    associatedContent.insertAdjacentHTML('beforeend', productCard);
+                });
+            }
+
+            // Dispatch custom event to signal data is ready
             document.dispatchEvent(new Event('productDataReady'));
-        });
+        } else {
+            window.location.href = '404.html';
+        }
+    } catch (error) {
+        console.error('Error fetching product:', error.message);
+        productName.textContent = 'Erreur de chargement du produit : ' + error.message;
+        if (productNameDir) productNameDir.textContent = 'Erreur de chargement du produit : ' + error.message;
+        productImagesScript.textContent = '{}';
+        dimensionPicker.innerHTML = '<option value="">Erreur de chargement des dimensions</option>';
+        customOption.style.display = 'none';
+        if (zValues) zValues.innerHTML = '<option value="">Erreur de chargement des valeurs d’épaisseur</option>';
+        if (desc) desc.textContent = 'Erreur de chargement de la description';
+        if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
+        if (associatedContent) associatedContent.innerHTML = '';
+        if (priceElement) priceElement.textContent = 'Erreur de chargement du prix : ' + error.message;
+        document.dispatchEvent(new Event('productDataReady'));
+    }
 })();
