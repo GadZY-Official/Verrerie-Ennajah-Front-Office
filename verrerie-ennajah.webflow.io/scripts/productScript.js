@@ -176,10 +176,11 @@
                 group: product.category || "Unknown"
             }, null, 2);
 
+            await delay(1000)
+
             // Insert other scripts after delay
             insertScripts(otherScripts);
 
-            await delay(1000)
             const domContentLoadedEvent = new Event('DOMContentLoaded', {
                 bubbles: true,
                 cancelable: true
