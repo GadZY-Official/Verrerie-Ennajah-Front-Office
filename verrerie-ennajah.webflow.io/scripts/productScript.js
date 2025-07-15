@@ -138,7 +138,7 @@
 
             // Function to insert scripts
             const insertScripts = async (scriptList) => {
-                await delay(1000)
+                await delay(1000); // Wait before inserting scripts
                 scriptList.forEach(({ parent, nextSibling, attributes, content }) => {
                     const newScript = document.createElement('script');
                     for (const [key, value] of Object.entries(attributes)) {
@@ -148,8 +148,9 @@
                     if (nextSibling) parent.insertBefore(newScript, nextSibling);
                     else parent.appendChild(newScript);
                 });
-                await delay(1000)
+                await delay(1000); // Wait after inserting scripts
             };
+
 
             // Insert JSON scripts
             await insertScripts(jsonScripts);
