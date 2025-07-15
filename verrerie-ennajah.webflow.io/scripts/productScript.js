@@ -179,6 +179,13 @@
             // Insert other scripts after delay
             insertScripts(otherScripts);
 
+            await delay(1000)
+            const domContentLoadedEvent = new Event('DOMContentLoaded', {
+                bubbles: true,
+                cancelable: true
+            });
+            document.dispatchEvent(domContentLoadedEvent);
+
             loader.style.display = 'none';
             mainContent.style.display = 'block';
 
