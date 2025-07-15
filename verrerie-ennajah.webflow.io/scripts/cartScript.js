@@ -1,4 +1,4 @@
-(function() {
+(function () {
     const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
     const CART_KEY = 'cart';
     let cartElement = null;
@@ -79,9 +79,9 @@
                         <div class="w-commerce-commercecartproductname">${name}</div>
                         <div>${item.dimensions.x}cm×${item.dimensions.y}cm${zDimension}</div>
                         <div>${formatPrice(item.dimensions.price)} DT</div>
-                        <a href="#" class="cart-remove-link" data-product-id="${item.productId}" data-x="${item.dimensions.x}" data-y="${item.dimensions.y}" data-z="${item.dimensions.z || ''}" aria-label="Remove item from cart">Remove</a>
+                        <a href="#" class="cart-remove-link" data-product-id="${item.productId}" data-x="${item.dimensions.x}" data-y="${item.dimensions.y}" data-z="${item.dimensions.z || ''}" aria-label="Remove item from cart">Supprimer</a>
                     </div>
-                    <input type="number" class="w-commerce-commercecartquantity input quantity-input" required pattern="^[0-9]+$" inputmode="numeric" name="quantity" autocomplete="off" value="${item.qty}" min="1" data-product-id="${item.productId}" data-x="${item.dimensions.x}" data-y="${item.dimensions.y}" data-z="${item.dimensions.z || ''}">
+                    <input type="number" class="w-commerce-commercecartquantity input quantity-input" required pattern="^[0-9]+$" inputmode="numeric" name="quantity" autocomplete="off" value="${item.qty}" min="1" max="99" onChange="enforceLimit(this)" onInput="enforceLimit(this)">
                 </div>
             `;
         }));
@@ -94,16 +94,16 @@
                     </div>
                     <div class="w-commerce-commercecartfooter cart-footer">
                         <div class="w-commerce-commercecartlineitem">
-                            <div>Subtotal</div>
+                            <div>Sous-total</div>
                             <div>${formatPrice(totalPrice)} DT</div>
                         </div>
-                        <a href="checkout.html" class="w-commerce-commercecartcheckoutbutton button">Continue to Checkout</a>
+                        <a href="checkout.html" class="w-commerce-commercecartcheckoutbutton button">Continuer vers la caisse</a>
                     </div>
                 </form>
             </div>
         ` : `
             <div class="w-commerce-commercecartemptystate">
-                <div>No items found.</div>
+                <div>Aucun article trouvé.</div>
             </div>
         `;
 
@@ -111,7 +111,7 @@
             <div data-node-type="commerce-cart-container-wrapper" style="transition: all, opacity 300ms; opacity: 1;" class="w-commerce-commercecartcontainerwrapper w-commerce-commercecartcontainerwrapper--cartType-modal">
                 <div data-node-type="commerce-cart-container" role="dialog" class="w-commerce-commercecartcontainer cart-container" style="transition: all, transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94); transform: scale(1);">
                     <div class="w-commerce-commercecartheader cart-header">
-                        <h4 class="w-commerce-commercecartheading">Your Cart</h4>
+                        <h4 class="w-commerce-commercecartheading">Votre panier</h4>
                         <a href="#" data-node-type="commerce-cart-close-link" class="w-commerce-commercecartcloselink w-inline-block" role="button" aria-label="Close cart">
                             <svg width="16px" height="16px" viewBox="0 0 16 16">
                                 <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -129,13 +129,13 @@
     }
 
     // Add to cart
-    window.addToCart = function(productId, dimensions, qty) {
+    window.addToCart = function (productId, dimensions, qty) {
         if (!productId || !dimensions || !Number.isInteger(qty) || qty <= 0) {
             console.error('Invalid input: productId, dimensions, and positive integer qty are required');
             return false;
         }
         const cart = getCartFromStorage();
-        const existingItem = cart.find(item => 
+        const existingItem = cart.find(item =>
             item.productId === productId && areDimensionsEqual(item.dimensions, dimensions)
         );
 
@@ -163,13 +163,13 @@
     };
 
     // Delete item from cart
-    window.deleteFromCart = function(productId, dimensions) {
+    window.deleteFromCart = function (productId, dimensions) {
         if (!productId || !dimensions) {
             console.error('Invalid input: productId and dimensions are required');
             return false;
         }
         let cart = getCartFromStorage();
-        cart = cart.filter(item => 
+        cart = cart.filter(item =>
             !(item.productId === productId && areDimensionsEqual(item.dimensions, dimensions))
         );
         saveCartToStorage(cart);
@@ -181,13 +181,13 @@
     };
 
     // Update quantity of an item in cart
-    window.updateQty = function(productId, dimensions, qty) {
+    window.updateQty = function (productId, dimensions, qty) {
         if (!productId || !dimensions || !Number.isInteger(qty) || qty <= 0) {
             console.error('Invalid input: productId, dimensions, and positive integer qty are required');
             return false;
         }
         const cart = getCartFromStorage();
-        const item = cart.find(item => 
+        const item = cart.find(item =>
             item.productId === productId && areDimensionsEqual(item.dimensions, dimensions)
         );
 
@@ -206,7 +206,7 @@
     };
 
     // Get the current cart
-    window.getCart = function() {
+    window.getCart = function () {
         return getCartFromStorage();
     };
 
@@ -259,7 +259,7 @@
     }
 
     // Toggle cart visibility
-    window.toggleCart = async function() {
+    window.toggleCart = async function () {
         const wrapper = document.querySelector('[data-node-type="commerce-cart-wrapper"]');
         if (!wrapper) {
             console.error('Cart wrapper not found');
@@ -323,3 +323,29 @@
     // Initialize cart items number on page load
     updateCartItemsNum()
 })();
+
+function enforceLimit(input) {
+    const min = parseInt(input.min, 10);
+    const max = parseInt(input.max, 10);
+    let value = input.value;
+
+    // Prevent leading zeroes
+    if (/^0\d+/.test(value)) {
+        value = parseInt(value, 10);
+    }
+
+    // Block non-numeric or empty
+    if (value === '' || isNaN(value)) {
+        input.value = '';
+        return;
+    }
+
+    value = parseInt(value, 10);
+
+    if (value < min || value > max) {
+        // Reject the value entirely
+        input.value = '';
+    } else {
+        input.value = value;
+    }
+}

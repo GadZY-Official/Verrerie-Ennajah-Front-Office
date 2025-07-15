@@ -34,7 +34,7 @@
         const ymm = y / 100;
 
         const zData = availableZ.find(item => item.z == z);
-        if (!zData) return 'Invalid z value';
+        if (!zData) return 'Épaisseur invalide';
         const zPrice = zData.price;
 
         if (z != 3) {
@@ -66,7 +66,7 @@
                 return (xmm + 0.03) * (ymm + 0.03) * zPrice;
             }
         }
-        return 'Invalid dimensions';
+        return 'Dimensions non valides';
     }
 
     if (!productId) {
@@ -76,10 +76,10 @@
         dimensionPicker.innerHTML = '<option value="">No product ID provided</option>';
         customOption.style.display = 'none';
         if (zValues) zValues.innerHTML = '<option value="">No product ID provided</option>';
-        if (desc) desc.textContent = 'No description available';
+        if (desc) desc.textContent = 'Aucune description disponible';
         if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
         if (associatedContent) associatedContent.innerHTML = '';
-        if (priceElement) priceElement.textContent = 'No price available';
+        if (priceElement) priceElement.textContent = 'Aucun prix disponible';
         document.dispatchEvent(new Event('productDataReady'));
         return;
     }
@@ -181,7 +181,7 @@
                 if (productNameDir) productNameDir.textContent = product.name;
 
                 // Set product description
-                if (desc) desc.textContent = product.description || 'No description available';
+                if (desc) desc.textContent = product.description || 'Aucune description disponible';
 
                 // Set product image srcset
                 if (product.images && product.images[0]) {
@@ -215,7 +215,7 @@
                 if (product.allowCustom) {
                     const customOptionElement = document.createElement('option');
                     customOptionElement.value = 'custom';
-                    customOptionElement.textContent = 'Personalisé';
+                    customOptionElement.textContent = 'Personnalisé';
                     dimensionPicker.appendChild(customOptionElement);
                 }
 
@@ -230,7 +230,7 @@
                             zValues.appendChild(option);
                         });
                     } else if (zValues) {
-                        zValues.innerHTML = '<option value="">Select a dimension first</option>';
+                        zValues.innerHTML = '<option value="">Choisir d’abord une dimension</option>';
                     }
                 }
 
@@ -244,12 +244,12 @@
                             const calculatedPrice = calculateCustomPrice(x, y, z, product.availableZ);
                             priceElement.textContent = typeof calculatedPrice === 'number' ? formatPrice(calculatedPrice) + ' DT' : calculatedPrice;
                         } else {
-                            priceElement.textContent = 'Enter valid dimensions';
+                            priceElement.textContent = 'Entrez dimensions valides';
                         }
                     } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
                         priceElement.textContent = formatPrice(product.defaultDimensions[dimensionPicker.value].price) + ' DT';
                     } else {
-                        priceElement.textContent = 'Select a dimension';
+                        priceElement.textContent = 'Choisir une dimension';
                     }
                 }
 
@@ -263,7 +263,7 @@
                         const qty = parseInt(qtyInput ? qtyInput.value : '1', 10);
                         if (!Number.isInteger(qty) || qty <= 0) {
                             console.error('Invalid quantity');
-                            priceElement.textContent = 'Enter a valid quantity';
+                            priceElement.textContent = 'Entrez une quantité valide';
                             return;
                         }
 
@@ -282,7 +282,7 @@
                                 dimensions = { x, y, z, price: calculatedPrice };
                             } else {
                                 console.error('Invalid custom dimensions');
-                                priceElement.textContent = 'Enter valid dimensions';
+                                priceElement.textContent = 'Entrez dimensions valides';
                                 return;
                             }
                         } else if (dimensionPicker.value !== '' && product.defaultDimensions[dimensionPicker.value]) {
@@ -295,16 +295,16 @@
                             };
                         } else {
                             console.error('No valid dimension selected');
-                            priceElement.textContent = 'Select a dimension';
+                            priceElement.textContent = 'Choisir dimension';
                             return;
                         }
 
                         const success = window.addToCart(product.id, dimensions, qty);
                         if (success) {
-                            priceElement.textContent = 'Added to cart';
+                            priceElement.textContent = 'Ajouté au panier';
                             setTimeout(updatePrice, 2000); // Revert price display after 2 seconds
                         } else {
-                            priceElement.textContent = 'Error adding to cart';
+                            priceElement.textContent = 'Erreur lors de l’ajout au panier';
                         }
                     });
                 }
@@ -361,16 +361,16 @@
         })
         .catch(error => {
             console.error('Error fetching product:', error.message);
-            productName.textContent = 'Error loading product: ' + error.message;
-            if (productNameDir) productNameDir.textContent = 'Error loading product: ' + error.message;
+            productName.textContent = 'Erreur de chargement du produit : ' + error.message;
+            if (productNameDir) productNameDir.textContent = 'Erreur de chargement du produit : ' + error.message;
             productImagesScript.textContent = '{}';
-            dimensionPicker.innerHTML = '<option value="">Error loading dimensions</option>';
+            dimensionPicker.innerHTML = '<option value="">Erreur de chargement des dimensions</option>';
             customOption.style.display = 'none';
-            if (zValues) zValues.innerHTML = '<option value="">Error loading z-values</option>';
-            if (desc) desc.textContent = 'Error loading description';
+            if (zValues) zValues.innerHTML = '<option value="">Erreur de chargement des valeurs d’épaisseur</option>';
+            if (desc) desc.textContent = 'Erreur de chargement de la description';
             if (youtubeVideoContainer) youtubeVideoContainer.style.display = 'none';
             if (associatedContent) associatedContent.innerHTML = '';
-            if (priceElement) priceElement.textContent = 'Error loading price: ' + error.message;
+            if (priceElement) priceElement.textContent = 'Erreur de chargement du prix : ' + error.message;
             document.dispatchEvent(new Event('productDataReady'));
         });
 })();

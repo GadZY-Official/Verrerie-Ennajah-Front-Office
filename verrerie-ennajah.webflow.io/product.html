@@ -25,6 +25,7 @@
     href="../cdn.prod.website-files.com/686a5e194dc025de174612e0/686ff3558d8c8521c3413f2c_Verrerie&#32;Ennajah256.png"
     rel="apple-touch-icon" />
   <link rel="stylesheet" href="styles/loader.css">
+
   <script
     type="text/javascript">window.__WEBFLOW_CURRENCY_SETTINGS = { "currencyCode": "USD", "symbol": "$", "decimal": ".", "fractionDigits": 2, "group": ",", "template": "{{wf {\"path\":\"symbol\",\"type\":\"PlainText\"} }} {{wf {\"path\":\"amount\",\"type\":\"CommercePrice\"} }} {{wf {\"path\":\"currencyCode\",\"type\":\"PlainText\"} }}", "hideDecimalForWholeNumbers": false };</script>
 </head>
@@ -271,9 +272,9 @@
             <div class="full-width">
               <form data-node-type="commerce-add-to-cart-form" data-commerce-sku-id="686a5e194dc025de1746134b"
                 data-loading-text="Adding to cart..." data-commerce-product-id="686a5e194dc025de174613e1"
-                class="w-commerce-commerceaddtocartform add-to-cart"><input type="number" id="qty" pattern="^[0-9]+$"
+                class="w-commerce-commerceaddtocartform add-to-cart"><input type="number" onChange="enforceLimit(this)" onInput="enforceLimit(this)" id="qty" pattern="^[0-9]+$"
                   inputMode="numeric" id="quantity-652131f9f904302b3296412795400fe8"
-                  name="commerce-add-to-cart-quantity-input" min="1"
+                  name="commerce-add-to-cart-quantity-input" min="1" max="99"
                   class="w-commerce-commerceaddtocartquantityinput input quantity-input" value="1" />
                 <div class="buy-buttons"><input type="button" id="addToCartBtn"
                     class="w-commerce-commerceaddtocartbutton button add-to-cart-button" value="Ajouter au panier" />
