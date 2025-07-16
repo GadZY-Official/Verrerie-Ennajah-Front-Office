@@ -1,5 +1,5 @@
 (function () {
-    const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
+    const api = 'https://verrerie-ennajah.github.io/Verrerie-Ennajah-Data';
     const productsContainer = document.getElementById('productsContainer');
     const categoryName = document.getElementById('categoryName');
     const allCatButton = document.getElementById('allCat');

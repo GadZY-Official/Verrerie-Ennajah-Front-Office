@@ -1,5 +1,5 @@
 (function () {
-    const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
+    const api = 'https://verrerie-ennajah.github.io/Verrerie-Ennajah-Data';
     const CART_KEY = 'cart';
     const DELIVERY_FEE = 8.000; // Delivery fee in DT
     const FORMSUBMIT_EMAIL = 'ste.verrerie.ennajahe@gmail.com';

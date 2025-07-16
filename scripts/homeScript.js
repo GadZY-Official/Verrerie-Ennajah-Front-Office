@@ -1,5 +1,5 @@
 (function () {
-    const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
+    const api = 'https://verrerie-ennajah.github.io/Verrerie-Ennajah-Data';
     const verreContainer = document.getElementById('verreContainer');
     const miroirsContainer = document.getElementById('miroirsContainer');
     const cadresContainer = document.getElementById('cadresContainer');

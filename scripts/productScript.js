@@ -1,5 +1,5 @@
 (async function () {
-    const api = 'https://ademtebourbi.github.io/VerrerieEnnajah-Data';
+    const api = 'https://verrerie-ennajah.github.io/Verrerie-Ennajah-Data';
     const productName = document.getElementById('productName');
     const productNameDir = document.getElementById('productNameDir');
     const productImage = document.getElementById('productImage');
