@@ -196,7 +196,7 @@
             if (productNameDir) productNameDir.textContent = product.name;
 
             // Set product description
-            if (desc) desc.textContent = product.description || 'Aucune description disponible';
+            if (desc) desc.innerHTML = product.description || 'Aucune description disponible';
 
             // Set product image srcset
             if (product.images && product.images[0]) {
