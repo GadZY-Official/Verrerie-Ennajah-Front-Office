@@ -1,0 +1,13 @@
+#verre-subcats {
+    display: none;
+}
+
+#verre-subcats.visible {
+    display: block;
+}
+
+.shop-categories-wrapper {
+    flex-direction: column;
+    gap: 5px;
+    align-items:end
+}
